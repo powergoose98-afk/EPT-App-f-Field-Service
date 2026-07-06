@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00539B">
+<title>Test Bench — Field Testing Reference</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  --eaton-blue:#00539B; --eaton-dark:#003A6D; --bg:#F4F6F8; --card:#FFFFFF;
+  --line:#D5DBE1; --red:#C8102E; --text:#1A222C; --muted:#3F4A54;
+  --mono:Consolas,'Courier New',monospace;
+  --body:Calibri,'Segoe UI',Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--eaton-blue)}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:20;background:var(--eaton-blue);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{font-weight:700;font-size:22px;letter-spacing:.02em}
+.brand .rev{font-family:var(--mono);font-size:12px;color:#FFFFFF}
+.tagline{font-size:13px;color:#FFFFFF;margin-top:2px}
+
+/* ---------- search ---------- */
+.search-wrap{padding:12px 16px 4px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.search svg{flex:none;color:var(--muted)}
+.search input{flex:1;background:none;border:none;color:var(--text);font:inherit;outline:none}
+.search input::placeholder{color:var(--muted)}
+
+/* ---------- category groups ---------- */
+main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
+.group{margin-top:22px}
+.group-label{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--eaton-blue);border-bottom:2px solid var(--eaton-blue);padding-bottom:6px;margin-bottom:2px}
+.row{display:flex;align-items:center;width:100%;text-align:left;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line);background:transparent}
+.row:active{background:#E8EEF4}
+.row .name{flex:1;font-weight:600;color:var(--text)}
+.row .name small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
+.tag{font-family:var(--mono);font-size:11.5px;color:#fff;background:var(--eaton-blue);border-radius:3px;padding:2px 7px;white-space:nowrap}
+.chev{color:var(--muted);flex:none}
+
+/* ---------- detail view ---------- */
+.detail{display:none}
+.back{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--eaton-blue);padding:14px 0 4px}
+.nameplate{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--eaton-blue);border-radius:6px;padding:14px 16px;margin-top:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nameplate h2{font-weight:700;font-size:22px;line-height:1.2;color:var(--eaton-dark)}
+.nameplate .refline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
+.nameplate .refline b{color:var(--eaton-blue);font-weight:600}
+
+.safety{margin-top:14px;border:1px solid var(--red);border-left:6px solid var(--red);border-radius:4px;background:#FBEDEF;padding:12px 14px}
+.safety h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700}
+.safety ul{padding-left:18px;font-size:14.5px}
+.safety li{margin:4px 0}
+
+.sec{margin-top:20px}
+.sec>h3{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--eaton-blue);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:10px}
+.check{list-style:none}
+.check li{position:relative;padding:7px 0 7px 26px;font-size:15px;border-bottom:1px dotted var(--line)}
+.check li::before{content:"";position:absolute;left:2px;top:12px;width:12px;height:12px;border:1.5px solid var(--muted);border-radius:2px;background:var(--card)}
+
+.test{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.test h4{font-size:16px;font-weight:700;color:var(--eaton-dark)}
+.test p{font-size:14.5px;color:var(--text);margin-top:5px}
+.test .ref{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--eaton-blue);border:1px solid var(--eaton-blue);border-radius:3px;padding:1px 7px;margin-top:8px;background:#EDF3F9}
+
+.notes{margin-top:6px;font-size:14.5px;color:var(--muted)}
+.notes b{color:var(--text)}
+
+/* ---------- SATSU stub ---------- */
+.stub{margin-top:14px;border:1px dashed var(--line);border-radius:6px;padding:14px;color:var(--muted);font-size:14.5px;background:var(--card)}
+.stub b{color:var(--text)}
+
+/* ---------- footer disclaimer ---------- */
+.disclaimer{margin-top:34px;border-top:1px solid var(--line);padding-top:12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
+
+.hidden{display:none!important}
+.no-results{padding:30px 0;text-align:center;color:var(--muted);font-size:14.5px}
+mark{background:#FFE68A;color:var(--text);border-radius:2px;padding:0 2px}
+@media (prefers-reduced-motion: no-preference){
+  .detail.show{animation:slide .18s ease-out}
+  @keyframes slide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><h1>Test Bench</h1><span class="rev">REV 1.0 · FIELD REF</span></div>
+  <div class="tagline">ACCEPTANCE &amp; MAINTENANCE TESTING · PER NETA ATS/MTS + SATSU</div>
+</header>
+
+<div class="search-wrap" id="searchWrap">
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search equipment, tests, procedures…" autocomplete="off">
+  </div>
+</div>
+
+<main>
+  <div id="home"></div>
+
+  <div id="detail" class="detail">
+    <button class="back" id="backBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      All equipment
+    </button>
+    <div id="detailBody"></div>
+  </div>
+
+  <div class="disclaimer">
+    REFERENCE AID ONLY. Procedures summarize common industry practice. Acceptance criteria, test values, and table data MUST be verified against your licensed copy of the current NETA ATS/MTS edition, the manufacturer's instruction book, and Eaton SATSU requirements. Section/table numbers may shift between NETA editions. When documents conflict, follow SATSU and the equipment IB. This app stores no job data.
+  </div>
+</main>
+
+<script>
+/* =====================================================================
+   CONTENT — procedures written as general industry practice.
+   NETA refs point to the applicable ATS section; verify values against
+   your licensed edition.
+
+   ── INSTRUCTIONS FOR ADDING SATSU CONTENT (for AI assistants/Copilot) ──
+   Each equipment entry below may include an OPTIONAL field:
+
+     satsu: [
+       "Requirement text as a plain string",
+       "One requirement per string",
+       "Include hold points, PPE requirements, and documentation requirements"
+     ],
+
+   Rules:
+   1. Add the satsu array inside the relevant equipment object, after
+      the "notes" field. Do not modify any other field.
+   2. Strings must be plain text (no HTML). Escape any double quotes.
+   3. Do NOT restructure, reformat, or rewrite any other part of this
+      file. Only insert satsu arrays into existing EQ entries.
+   4. Equipment IDs: lvswgr, mvswgr, bus, mccb, lvpcb, mvvac, drytx,
+      liqtx, itx, lvcable, mvcable, airsw, mcc, acmotor, asd, relay,
+      gfp, meter, battery, arrester, cap, grounding, ats
+   5. If a SATSU requirement doesn't map to a listed equipment type,
+      add it to the closest match rather than creating a new entry.
+   Entries without a satsu array automatically show a "pending" notice.
+===================================================================== */
+const GROUPS = [
+  {label:"Switchgear & Assemblies", items:["lvswgr","mvswgr","bus"]},
+  {label:"Circuit Breakers", items:["mccb","lvpcb","mvvac"]},
+  {label:"Transformers", items:["drytx","liqtx","itx"]},
+  {label:"Cables & Switches", items:["lvcable","mvcable","airsw"]},
+  {label:"Motor Control & Rotating", items:["mcc","acmotor","asd"]},
+  {label:"Protection & Metering", items:["relay","gfp","meter"]},
+  {label:"DC, Power Quality & Misc", items:["battery","arrester","cap","grounding","ats"]}
+];
+
+const EQ = {
+/* ---------------- SWITCHGEAR ---------------- */
+lvswgr:{
+ name:"LV Switchgear & Switchboards", sub:"Metal-enclosed, ≤1000 V", neta:"ATS 7.1",
+ safety:[
+  "Verify de-energized: test-before-touch on all sources, both sides of the main. LOTO per site program.",
+  "Account for back-feed paths — generators, UPS, control power transformers, tie breakers.",
+  "Rack breakers to DISCONNECTED and confirm shutter operation before entering rear compartments."
+ ],
+ vm:[
+  "Compare nameplate data with drawings and one-lines",
+  "Inspect physical, electrical, and mechanical condition; check anchorage and grounding",
+  "Verify bus connections are torqued per manufacturer data or verified by low-resistance measurement",
+  "Confirm shutter, interlock, and key-interlock operation through full sequence",
+  "Check all doors, panels, and barriers installed; filters clean; heaters operating",
+  "Clean the assembly; inspect insulators and standoffs for cracks or tracking",
+  "Verify correct breaker/cell fit and rating for each cubicle",
+  "Exercise all moving parts; lubricate per manufacturer instructions"
+ ],
+ tests:[
+  {n:"Insulation Resistance — Bus", p:"Megger each bus phase-to-phase and phase-to-ground for 1 minute at the test voltage for the assembly's voltage class. Record temperature and correct readings for comparison.", r:"NETA Table 100.1"},
+  {n:"Overpotential (Dielectric Withstand)", p:"AC or DC withstand on each bus section phase-to-ground with other phases grounded, at the assembly-class test voltage. Only after acceptable IR results.", r:"NETA Table 100.2 / ANSI C37.20.1"},
+  {n:"Contact / Bolted Connection Resistance", p:"DLRO across bolted bus joints and breaker stabs. Compare similar joints — investigate values deviating >50% from the lowest.", r:"ATS 7.1 · Table 100.12 (torque)"},
+  {n:"Control Wiring & Functional", p:"Point-to-point verify control wiring against schematics; function-test interlocks, transfer schemes, and indications.", r:"ATS 7.1"},
+  {n:"IR Thermographic Survey (energized, MTS)", p:"Under load, scan connections and terminations. Evaluate ΔT between similar components and over ambient.", r:"NETA MTS Table (thermography)"}
+ ],
+ notes:"Instrument transformer, relay, and breaker testing are separate line items — see their own sections.",
+ satsu:[
+  "EXAMPLE FORMAT — replace with actual SATSU content for LV switchgear",
+  "Each requirement goes in its own string like this"
+ ]
+},
+mvswgr:{
+ name:"MV Metal-Clad Switchgear", sub:"Metal-clad & metal-enclosed, >1000 V", neta:"ATS 7.1",
+ safety:[
+  "MV work requires arc-rated PPE per the arc flash study and site MV switching orders.",
+  "Test-before-touch with a rated hot stick tester; apply grounds before contact.",
+  "Watch for CT secondaries — never open-circuit an energized CT secondary.",
+  "Confirm VT/CPT fuses pulled and capacitive charge bled off cable terminations."
+ ],
+ vm:[
+  "Compare nameplate with drawings; verify ratings match system studies",
+  "Inspect anchorage, alignment, grounding, and required clearances",
+  "Verify shutter operation, racking mechanism, and mechanical interlocks through full travel",
+  "Inspect insulators, boots, and barriers for tracking, corona damage, or contamination",
+  "Verify bus joint torque or DLRO values; check heater operation",
+  "Confirm key interlock scheme against the intended operating sequence",
+  "Clean; check ventilation, filters, and cable terminations/stress cones"
+ ],
+ tests:[
+  {n:"Insulation Resistance — Bus", p:"1-minute megger per phase at the voltage-class test level, phase-to-phase and phase-to-ground, breakers racked out.", r:"NETA Table 100.1"},
+  {n:"Overpotential — Bus", p:"AC/DC/VLF withstand per bus section, each phase to ground with others grounded, per assembly class. Watch leakage current stability.", r:"NETA Table 100.2 / C37.20.2"},
+  {n:"Bus Joint Resistance", p:"DLRO through accessible joints; compare like joints. Trend against commissioning values in maintenance testing.", r:"ATS 7.1"},
+  {n:"Partial Discharge (optional)", p:"Online or offline PD survey where specified — useful trending tool for aged gear.", r:"ATS optional test"},
+  {n:"Control & Interlock Functional", p:"Verify control wiring, close/trip from all control points, transfer and lockout schemes, and remote SCADA points.", r:"ATS 7.1"}
+ ],
+ notes:"Recall the CT placement lesson — verify CTs are on the correct bus/riser and polarity matches the drawings while you're in there."
+},
+bus:{
+ name:"Metal-Enclosed Busway", sub:"LV & MV busway / bus duct", neta:"ATS 7.4",
+ safety:[
+  "Verify isolation at both ends — busway can be fed from either direction.",
+  "Check for condensation/moisture before test; drying may be required first."
+ ],
+ vm:[
+  "Compare nameplate to drawings; verify correct phase orientation at joints",
+  "Inspect joints for proper assembly and torque indication (e.g., torque-indicating bolts broken over)",
+  "Verify hangers, supports, and expansion fittings per manufacturer spacing",
+  "Confirm housing ground continuity and bonding at both ends",
+  "Inspect for moisture entry points on outdoor runs"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Each phase to ground and phase-to-phase, 1 minute, at voltage-class test level. Long runs read lower — evaluate per length.", r:"NETA Table 100.1"},
+  {n:"Overpotential", p:"AC or DC withstand phase-to-ground per class after acceptable IR. Not always required on LV feeder busway — check spec.", r:"NETA Table 100.2 / Table 100.17"},
+  {n:"Joint Resistance", p:"DLRO through accessible joints; compare like joints for consistency.", r:"ATS 7.4"},
+  {n:"Phasing Verification", p:"Confirm phase relationship end-to-end before energization, especially after joint work.", r:"ATS 7.4"}
+ ],
+ notes:"Moisture is the #1 killer of busway IR. If readings are low and weather was wet during install, dry and retest before condemning."
+},
+/* ---------------- BREAKERS ---------------- */
+mccb:{
+ name:"Molded-Case & Insulated-Case Breakers", sub:"LV MCCB / ICCB incl. electronic trip", neta:"ATS 7.6.1.1 / 7.6.1.2",
+ safety:[
+  "De-energize and isolate; verify both line and load side dead.",
+  "Primary injection sets can back-feed — barricade test area and control the test leads."
+ ],
+ vm:[
+  "Compare nameplate (frame, sensor, plug) with drawings and coordination study settings sheet",
+  "Inspect case for cracks, arc damage, or overheating discoloration",
+  "Operate breaker manually several times; verify positive on/off/trip indication",
+  "Verify terminal torque per manufacturer; inspect line/load stabs",
+  "Confirm trip unit settings match the latest coordination study"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-pole, pole-to-ground, and across open contacts at 1000 Vdc (typ. for LV), 1 minute.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO through each closed pole. Compare poles; investigate deviation >50% from lowest pole or manufacturer limit.", r:"ATS 7.6.1"},
+  {n:"Primary Injection — Trip Verification", p:"Inject each pole to verify long-time pickup/delay, and instantaneous, per the trip curve. For electronic trips, follow the OEM's primary injection guidance — Rogowski-sensor units need correct return-path routing (you've seen the neutral-path GF trip issue).", r:"ATS 7.6.1.2 · Tables 100.7/100.8"},
+  {n:"Secondary Injection (electronic trips)", p:"Exercise trip unit functions (LSIG) via test kit where primary injection isn't practical for every element; primary injection still validates sensors/wiring.", r:"ATS 7.6.1.2"},
+  {n:"Ground Fault Function", p:"Verify GF pickup and delay per settings, and confirm proper neutral sensor polarity/placement on 4-wire systems.", r:"ATS 7.14 / Table (GF)"}
+ ],
+ notes:"On PXR trip units, clear and acknowledge trip events in the unit (or PXPM/PXG) after testing so the customer doesn't inherit a standing alarm."
+},
+lvpcb:{
+ name:"LV Power Circuit Breakers", sub:"Drawout air-frame (Magnum, DS, etc.)", neta:"ATS 7.6.1.2",
+ safety:[
+  "Discharge closing springs before handling the mechanism; charged mechs can cycle unexpectedly.",
+  "Support drawout breakers properly — frame weights will hurt you."
+ ],
+ vm:[
+  "Compare nameplate/sensor/rating plug with drawings and settings sheet",
+  "Inspect arc chutes for cracks, erosion; verify they're seated",
+  "Inspect main and arcing contacts for wear, alignment, and wipe per OEM",
+  "Slow-close the mechanism where OEM permits; check racking through all positions",
+  "Verify primary/secondary disconnect condition and lubrication",
+  "Clean and lubricate per OEM; exercise charge/close/trip electrically and manually",
+  "Verify cell interlocks and position switches (TOC/MOC) function"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-pole, pole-to-ground, across open contacts — 1 minute at LV test voltage.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO each pole closed; compare across poles and against OEM limits.", r:"ATS 7.6.1.2"},
+  {n:"Primary Injection", p:"Verify long-time, short-time, instantaneous, and GF elements against the coordination study. Confirm sensor and rating-plug agreement.", r:"ATS 7.6.1.2 · Tables 100.7/100.8"},
+  {n:"Minimum Pickup / Trip Actuator", p:"Verify shunt trip and close operations at reduced control voltage per OEM (anti-pump, UV device if fitted).", r:"ATS 7.6.1.2"},
+  {n:"Travel/Velocity (where specified)", p:"Motion analysis on larger frames if OEM provides limits; more common on MV.", r:"OEM IB"}
+ ],
+ notes:"Document as-found and as-left settings every time. If as-found ≠ study, flag it — don't silently 'fix' a setting the customer may have changed deliberately."
+},
+mvvac:{
+ name:"MV Vacuum & SF6 Breakers", sub:"Vacuum interrupters, SF6 puffer/rotary", neta:"ATS 7.6.2 / 7.6.4",
+ safety:[
+  "Vacuum bottle hipot can generate X-rays above rated test voltage — stand clear per OEM distance and never exceed listed test kV.",
+  "SF6: treat decomposition byproducts as toxic; check gas pressure/density before work. Never enter a tank without gas handling procedures."
+ ],
+ vm:[
+  "Compare nameplate with drawings; verify ratings vs. system study",
+  "Inspect interrupter supports, insulators for tracking or damage",
+  "Measure contact erosion indicator per OEM; verify wipe/gap where accessible",
+  "Verify mechanism charge/close/trip manually and electrically; count operations",
+  "SF6: verify gas pressure/density corrected to temperature; check for leaks",
+  "Lubricate mechanism per OEM; verify racking and interlocks in cell"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-ground, pole-to-pole, across open contacts at the MV test voltage, 1 minute.", r:"NETA Table 100.1"},
+  {n:"Vacuum Integrity (Bottle Hipot)", p:"AC or DC withstand across each open interrupter at the OEM's specified test voltage to prove vacuum. A bottle that's lost vacuum will flash immediately.", r:"ATS 7.6.2 / OEM IB"},
+  {n:"Contact Resistance", p:"DLRO each pole; compare to OEM limit and sister poles.", r:"ATS 7.6.2"},
+  {n:"Timing & Travel", p:"Breaker analyzer for open/close times, sync between poles, and velocity where OEM gives limits.", r:"ATS 7.6.2 / OEM IB"},
+  {n:"Minimum Trip/Close Voltage", p:"Verify trip and close at reduced DC control voltage per OEM and ANSI limits.", r:"ATS 7.6.2"},
+  {n:"SF6 Gas Analysis (MTS)", p:"Moisture/purity/decomposition testing on maintenance intervals or after fault operations.", r:"ATS 7.6.4 / MTS"}
+ ],
+ notes:"Log operations-counter and contact-erosion readings — they drive the maintenance interval more than calendar time does."
+},
+/* ---------------- TRANSFORMERS ---------------- */
+drytx:{
+ name:"Dry-Type Transformers", sub:"VPI, cast coil, ventilated", neta:"ATS 7.2.1",
+ safety:[
+  "Verify de-energized both sides; watch for back-feed through LV.",
+  "Discharge windings to ground after DC tests — dielectric absorption holds charge."
+ ],
+ vm:[
+  "Compare nameplate (kVA, voltage, taps, impedance) with drawings",
+  "Inspect coils for cracked castings, tracking, dust/debris blocking ducts",
+  "Verify tap changer position matches records; operate through range if de-energized",
+  "Verify winding and core grounding — core ground should be single-point",
+  "Torque or DLRO-verify all connections; check fan/temperature controls",
+  "Clean cooling ducts; verify clearances to walls per nameplate"
+ ],
+ tests:[
+  {n:"Insulation Resistance + PI/DAR", p:"Winding-to-winding and each winding-to-ground at the class test voltage, 1 and 10 minutes for PI on larger units. Temperature-correct all readings.", r:"NETA Table 100.5"},
+  {n:"Turns Ratio (TTR)", p:"Every tap, every phase. Compare against nameplate ratio; deviation limit is typically ±0.5%. Confirms tap position and winding integrity.", r:"ATS 7.2.1"},
+  {n:"Winding Resistance", p:"Each winding each tap (or as-left tap min.), compare phases and factory data. Finds loose internal connections and broken strands.", r:"ATS 7.2.1"},
+  {n:"Excitation Current (optional)", p:"Single-phase excitation per phase — pattern comparison (two-high/one-low on three-legged cores) detects core/winding problems.", r:"ATS optional"},
+  {n:"Applied/Induced Potential (acceptance)", p:"Where specified, withstand test per class after all other tests pass.", r:"NETA Table 100.2 / IEEE C57.12.91"}
+ ],
+ notes:"TTR out of tolerance on one tap only usually means a tap changer contact problem, not a winding fault."
+},
+liqtx:{
+ name:"Liquid-Filled Transformers", sub:"Mineral oil, FR3, silicone", neta:"ATS 7.2.2",
+ safety:[
+  "Bleed pressure before opening any valve/fitting; hot oil hazard on loaded units.",
+  "Nitrogen-blanketed units: never enter or open without purging — asphyxiation hazard.",
+  "Ground the tank and all bushings during test; discharge after DC tests."
+ ],
+ vm:[
+  "Compare nameplate with drawings; record serial, gallons, fluid type",
+  "Inspect for leaks — bushings, radiators, valves, tap changer, gaskets",
+  "Verify liquid level and temperature gauges; record max-drag pointers",
+  "Verify pressure/vacuum gauge and pressure relief device condition",
+  "Inspect bushings for chips, cracks, oil level (if applicable)",
+  "Verify grounding of tank, neutral, and surge arresters",
+  "Verify fans, pumps, and cooling controls operate; check alarm contacts"
+ ],
+ tests:[
+  {n:"Insulation Resistance + PI", p:"HV-LV, HV-G, LV-G at class voltage; PI on units where meaningful. Temperature-correct.", r:"NETA Table 100.5"},
+  {n:"Turns Ratio (TTR)", p:"All taps, all phases, compare to nameplate within ±0.5%.", r:"ATS 7.2.2"},
+  {n:"Winding Resistance", p:"Per winding/tap; compare to factory. Critical for LTC units — trends LTC contact condition.", r:"ATS 7.2.2"},
+  {n:"Power Factor / Dissipation Factor", p:"Doble-type test on windings (CH, CL, CHL) and bushings (C1, and C2 where tap available). Compare to nameplate/factory and trend.", r:"ATS 7.2.2"},
+  {n:"Insulating Fluid Analysis", p:"Sample for dielectric breakdown, moisture, acidity, IFT, color, power factor — plus DGA for combustible gases. Follow correct sampling procedure (flush, no air).", r:"NETA Table 100.14 / IEEE C57.104 (DGA)"},
+  {n:"Excitation Current", p:"Pattern test per phase for core/winding integrity where test set available.", r:"ATS optional"},
+  {n:"SFRA (where specified)", p:"Sweep frequency response — baseline at acceptance is gold for future shipping-damage or through-fault comparisons.", r:"ATS optional / IEEE C57.149"}
+ ],
+ notes:"Always pull the fluid sample BEFORE any other testing disturbs the unit, and record fluid temperature at sampling."
+},
+itx:{
+ name:"Instrument Transformers", sub:"CTs, VTs, CPTs", neta:"ATS 7.10",
+ safety:[
+  "NEVER open-circuit an energized CT secondary — lethal voltage. Short at the shorting block before lifting any wire.",
+  "Verify VT/CPT primary fuses pulled before handling."
+ ],
+ vm:[
+  "Compare nameplate ratio/class/burden with drawings and relay settings",
+  "Verify CT physical location and orientation (polarity mark direction) against one-line — CTs on the wrong bus riser protect nothing",
+  "Verify secondary wiring landed per schematics; single-point grounding of each secondary circuit",
+  "Verify shorting blocks and test switches accessible and correct"
+ ],
+ tests:[
+  {n:"Ratio Verification — CT", p:"Voltage or current method through the full ratio; verify at multiple taps on multi-ratio CTs. Confirm the connected tap matches settings.", r:"ATS 7.10.1"},
+  {n:"Polarity — CT", p:"Verify polarity matches drawings — critical for differential and directional schemes.", r:"ATS 7.10.1"},
+  {n:"Excitation (Saturation) Curve — CT", p:"Plot excitation curve, compare knee point to accuracy class (e.g., C400). Detects shorted turns.", r:"ATS 7.10.1 / IEEE C57.13"},
+  {n:"Insulation Resistance", p:"Windings to ground and winding-to-winding at appropriate voltage.", r:"NETA Table 100.1/100.5"},
+  {n:"Burden Measurement", p:"Measure connected secondary burden and verify within CT rating at the connected tap.", r:"ATS 7.10.1"},
+  {n:"Ratio & Polarity — VT", p:"Verify ratio and polarity; check fuses and secondary voltage under energization at commissioning.", r:"ATS 7.10.2"}
+ ],
+ notes:"Ratio, polarity, AND location — all three have to be right. You've personally caught the location one."
+},
+/* ---------------- CABLES & SWITCHES ---------------- */
+lvcable:{
+ name:"LV Cables", sub:"600 V class feeders & branch", neta:"ATS 7.3.1",
+ safety:[
+  "Verify both ends isolated and identified — cable tags lie; toner/verify if uncertain.",
+  "Discharge conductors after DC testing."
+ ],
+ vm:[
+  "Inspect exposed sections, terminations, and glands for damage",
+  "Verify bending radius, support, and training in trays/conduit bodies",
+  "Verify correct terminations, torque, and anti-oxidant where required",
+  "Confirm cable identification and phasing tags both ends"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Each conductor to ground/other conductors, 1 minute at 1000 Vdc (typ. 600 V class). Compare conductors of same feeder.", r:"NETA Table 100.1"},
+  {n:"Continuity & Phasing", p:"Verify point-to-point continuity and phase identity end to end.", r:"ATS 7.3.1"}
+ ],
+ notes:"LV cable rarely needs more than IR + continuity — don't over-test. Low IR? Check terminations and moisture in boxes before condemning the run."
+},
+mvcable:{
+ name:"MV Cables", sub:"5–35 kV shielded (EPR/XLPE)", neta:"ATS 7.3.2",
+ safety:[
+  "Cables hold DC charge for a long time — ground until charge dissipates (OEM guidance, often ≥4x test duration).",
+  "Barricade both ends during hipot/VLF; the far end is the one that kills someone.",
+  "Test leads at test voltage — control the area."
+ ],
+ vm:[
+  "Inspect terminations/splices for tracking, corona damage, proper stress relief",
+  "Verify shield grounding scheme (single/both ends) matches design",
+  "Verify bending radius and support; inspect visible jacket",
+  "Confirm nameplate/jacket legend matches design (size, insulation, MV class)"
+ ],
+ tests:[
+  {n:"Shield Continuity", p:"Verify metallic shield continuity and resistance on each phase.", r:"ATS 7.3.2"},
+  {n:"Insulation Resistance", p:"Each conductor to shield/ground at class voltage before and after withstand testing.", r:"NETA Table 100.1"},
+  {n:"VLF Withstand", p:"0.1 Hz AC withstand per phase at the voltage/duration for acceptance or maintenance class (IEEE 400.2 levels). Preferred over DC hipot for extruded dielectrics.", r:"ATS 7.3.3 / IEEE 400.2"},
+  {n:"Tan Delta (recommended with VLF)", p:"Measure dissipation factor vs. voltage steps — tip-up and stability grade insulation condition and catch water trees before failure.", r:"IEEE 400.2 / ATS optional"},
+  {n:"Partial Discharge (where specified)", p:"Offline PD locates splice/termination defects VLF withstand alone can miss.", r:"ATS optional"}
+ ],
+ notes:"Do NOT DC-hipot aged extruded (XLPE/EPR) cable — it can inject space charge and finish the cable off. VLF is the standard answer."
+},
+airsw:{
+ name:"Switches — Air, Load-Interrupter", sub:"LV/MV disconnects & interrupter switches", neta:"ATS 7.5",
+ safety:[
+  "Confirm switch position visually — all three blades. Indicators lie; blades don't.",
+  "Interrupter switches are NOT breakers — verify rating before any load-break operation."
+ ],
+ vm:[
+  "Compare nameplate to drawings; verify duty (load-break vs. isolating)",
+  "Inspect blade alignment, contact wipe, and arc chutes/interrupter condition",
+  "Operate through full travel; verify positive open/close and interlocks",
+  "Verify fuse sizes/types against coordination study (fused switches)",
+  "Lubricate per OEM; verify grounding of frame and operating handle"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-pole, pole-to-ground, across open switch at class voltage.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO each closed pole and through fuse holders; compare poles.", r:"ATS 7.5"},
+  {n:"Overpotential (MV, where specified)", p:"Withstand phase-to-ground per class after acceptable IR.", r:"NETA Table 100.2"},
+  {n:"Fuse Resistance", p:"DLRO through fuses; compare identical fuses — outliers indicate element damage.", r:"ATS 7.5"}
+ ],
+ notes:"Semiconductor (aR) fuses in the circuit? Verify I²t coordination against upstream devices — an aR fuse that clears before the breaker usually means somebody sized for protection overlap incorrectly."
+},
+/* ---------------- MOTOR CONTROL ---------------- */
+mcc:{
+ name:"MCCs & Motor Starters", sub:"LV/MV starters, contactors, MCC buckets", neta:"ATS 7.16",
+ safety:[
+  "Buckets can be energized from bus even with the bucket switch off — verify stab condition and isolation.",
+  "Control circuits may be foreign-fed from remote sources; check drawings."
+ ],
+ vm:[
+  "Compare nameplate/overload settings with drawings and motor FLA",
+  "Inspect contactor contacts, arc chutes, and coil for overheating",
+  "Verify overload element/setting matches motor nameplate and service factor",
+  "Torque/inspect bus stabs, wire terminations; exercise bucket racking",
+  "Verify interlocks (mechanical & electrical) on reversing/two-speed starters",
+  "Confirm fuse/breaker size vs. coordination study"
+ ],
+ tests:[
+  {n:"Insulation Resistance — Bus & Starter", p:"MCC bus and each starter pole to ground at LV test voltage.", r:"NETA Table 100.1"},
+  {n:"Contact/Connection Resistance", p:"DLRO through contactor poles, stabs, and OL elements; compare like units.", r:"ATS 7.16"},
+  {n:"Overload Function Test", p:"Current-inject overload relays to verify pickup and trip time per curve; electronic OLs — verify settings and function.", r:"ATS 7.16 / Table (OL)"},
+  {n:"Control Circuit Functional", p:"Operate start/stop/interlock/pilot devices through complete scheme; verify remote and safety interlocks.", r:"ATS 7.16"},
+  {n:"Contactor Drop-Out Voltage (MV)", p:"Verify pickup/drop-out per OEM for MV contactors; vacuum bottle integrity test where applicable.", r:"ATS 7.16.2"}
+ ],
+ notes:"Most MCC 'failures' at startup are overloads set to motor FLA x wrong multiplier — verify against the motor nameplate in front of you, not the schedule."
+},
+acmotor:{
+ name:"Rotating Machinery — AC Motors", sub:"Induction & synchronous", neta:"ATS 7.15.1",
+ safety:[
+  "LOTO the driven equipment too — stored mechanical energy rotates shafts.",
+  "Discharge windings after DC tests; large machines hold significant charge."
+ ],
+ vm:[
+  "Compare nameplate with drawings and starter/OL settings",
+  "Inspect frame grounding, anchorage, and coupling/alignment records",
+  "Verify ventilation passages clear; check bearing lubrication per OEM",
+  "Rotate shaft by hand where possible — feel for roughness",
+  "Inspect terminal box connections, lead insulation condition"
+ ],
+ tests:[
+  {n:"Insulation Resistance + PI", p:"Winding to ground at voltage per machine rating, 1 and 10 min for PI (PI typically ≥2.0 for class B and above). Temperature-correct — IR halves roughly every 10°C rise.", r:"NETA Table 100.1 / IEEE 43"},
+  {n:"Winding Resistance", p:"Phase-to-phase comparison; imbalance indicates connection or turn problems.", r:"ATS 7.15.1"},
+  {n:"Surge Comparison / Offline PD (larger machines)", p:"Where specified, surge test detects turn-to-turn weakness IR can't see.", r:"ATS optional / IEEE 522"},
+  {n:"Polarization / HiPot (acceptance, where specified)", p:"DC or AC withstand per machine class after acceptable IR/PI.", r:"ATS 7.15.1"},
+  {n:"Running Checks", p:"Uncoupled/coupled run: current balance across phases, vibration, bearing temps, direction of rotation verified before coupling.", r:"ATS 7.15.1"}
+ ],
+ notes:"Bump for rotation BEFORE coupling. Everyone has a story about the one time this got skipped."
+},
+asd:{
+ name:"Adjustable Speed Drives", sub:"LV/MV VFDs", neta:"ATS 7.17",
+ safety:[
+  "DC bus caps hold lethal charge after power-off — verify bus voltage <50 V before touching, per OEM wait time.",
+  "Never megger through a drive — disconnect drive before insulation testing motor/cables."
+ ],
+ vm:[
+  "Compare nameplate/firmware/settings against drawings and motor data",
+  "Inspect cooling fans, heatsinks, and filters; verify clearances",
+  "Verify input/output/control terminations torqued",
+  "Confirm parameter file backed up; record as-found parameters",
+  "Verify EMC grounding — shield terminations, common-mode cores per OEM"
+ ],
+ tests:[
+  {n:"Insulation Resistance (drive isolated)", p:"Motor and cable IR with drive disconnected only. Semiconductors do not survive meggers.", r:"NETA Table 100.1"},
+  {n:"Protective Function Verification", p:"Verify drive protective settings (OL, stall, ground fault, over-temp) against motor data and study.", r:"ATS 7.17"},
+  {n:"Functional Run", p:"Verify control modes, speed reference, accel/decel, and interlocks; record output current balance at load.", r:"ATS 7.17"},
+  {n:"Harmonics Survey (where specified)", p:"Measure input THD/TDD at PCC against IEEE 519 limits when required by spec.", r:"IEEE 519"}
+ ],
+ notes:"Long motor leads + fast switching = reflected wave stress. If the motor isn't inverter-duty or leads are long, check OEM guidance for dV/dt filters."
+},
+/* ---------------- PROTECTION ---------------- */
+relay:{
+ name:"Protective Relays", sub:"Electromechanical & microprocessor", neta:"ATS 7.9",
+ safety:[
+  "Isolate trip circuits or use test switches so testing can't trip in-service equipment.",
+  "Short CTs at the test switch before opening current circuits."
+ ],
+ vm:[
+  "Verify relay model/style and firmware against settings file and study",
+  "Inspect case, cover gasket, and connections (EM: check for foreign material, gap dust)",
+  "Verify settings as-found vs. issued setting sheet — document any difference",
+  "Verify targets/LEDs, test switch operation, and wiring against AC/DC schematics"
+ ],
+ tests:[
+  {n:"Pickup & Timing — Each Element", p:"Secondary-inject each enabled element (50/51, 27/59, 81, 87, 21, etc.): verify pickup within tolerance and timing at multiples per the curve/settings.", r:"ATS 7.9 / OEM tolerance"},
+  {n:"Functional Trip Test", p:"Prove each output contact drives the intended lockout/trip path — end-to-end from relay operation to breaker trip where possible.", r:"ATS 7.9"},
+  {n:"Metering Verification", p:"Inject known quantities; verify relay metering (magnitude and angle) — confirms CT/VT wiring and scaling.", r:"ATS 7.9.2"},
+  {n:"In-Service Readings (commissioning)", p:"On load, verify phasors in the relay match expected magnitude/phase — the final catch for CT polarity/ratio errors.", r:"ATS 7.9.2"},
+  {n:"Communications/SCADA Points", p:"Verify protocol points, event reporting, and time sync where in scope.", r:"ATS 7.9.2"}
+ ],
+ notes:"As-found/as-left documentation on settings is non-negotiable. Phasor check on load has caught more CT wiring errors than every offline test combined."
+},
+gfp:{
+ name:"Ground Fault Protection (LV)", sub:"Service GF systems per NEC 230.95", neta:"ATS 7.14",
+ safety:[
+  "Testing may require operating the service disconnect — coordinate outage windows.",
+  "Primary injection on GF systems can trip upstream — verify scheme first."
+ ],
+ vm:[
+  "Verify sensor type/location (zero-sequence vs. residual vs. source ground return) matches drawings",
+  "Verify neutral is grounded ONLY at the service point — downstream neutral-ground bonds defeat/false-trip GF schemes",
+  "Verify settings (pickup ≤1200 A, delay per NEC/study)",
+  "Inspect sensor conductor routing — all phase AND neutral conductors through zero-sequence window, grounds NOT through window"
+ ],
+ tests:[
+  {n:"Primary Injection GF Test", p:"Inject primary current simulating a ground fault; verify pickup and time per settings. Route return current correctly — return through the sensor window cancels the signal (your Rogowski/neutral lesson applies).", r:"ATS 7.14 / NEC 230.95(C)"},
+  {n:"Neutral Isolation Verification", p:"With service de-energized, verify no downstream neutral-ground bonds (IR test neutral to ground with bond lifted).", r:"ATS 7.14"},
+  {n:"Zone Interlock Function (where fitted)", p:"Verify ZSI restrains upstream when downstream sees the fault, and fast-trips on in-zone faults.", r:"ATS 7.14 / OEM"},
+  {n:"Monitor Panel/Indication", p:"Verify test panel, indication, and reset functions.", r:"ATS 7.14"}
+ ],
+ notes:"NEC requires performance testing of GF systems when first installed — with a written record. This one is a code requirement, not just good practice."
+},
+meter:{
+ name:"Metering & Power Monitoring", sub:"Revenue/SCADA meters, PQ monitors", neta:"ATS 7.11",
+ safety:["Short CTs at test switches before opening meter current circuits."],
+ vm:[
+  "Verify meter form/class and CT/VT ratios programmed correctly",
+  "Verify wiring per schematics; test switch operation",
+  "Verify communications addressing and time sync"
+ ],
+ tests:[
+  {n:"Injection Accuracy Check", p:"Inject known V/I at unity and offset power factors; verify registration within class accuracy.", r:"ATS 7.11"},
+  {n:"In-Service Verification", p:"Compare meter readings against a reference instrument on load; verify phasor diagram sanity.", r:"ATS 7.11"},
+  {n:"Demand/Energy Function", p:"Verify demand interval, kWh registration, and any pulse outputs.", r:"ATS 7.11"}
+ ],
+ notes:"Wrong CT ratio programmed = billing error that compounds monthly. Verify programmed ratio against the physical CT nameplate, not the drawing."
+},
+/* ---------------- DC / PQ / MISC ---------------- */
+battery:{
+ name:"Batteries & DC Systems", sub:"VLA, VRLA, NiCd + chargers", neta:"ATS 7.18",
+ safety:[
+  "Batteries are always energized — insulated tools, face shield, and no metal on hands/wrists.",
+  "Hydrogen off-gassing: no sparks/flame; verify ventilation before work.",
+  "Electrolyte PPE for flooded cells; know the eyewash location."
+ ],
+ vm:[
+  "Verify battery type/cells/rating against design; inspect racks and seismic bracing",
+  "Inspect for case damage, leaks, terminal corrosion; verify torque per OEM",
+  "Record electrolyte levels (VLA), float voltage per cell, and charger output",
+  "Verify area ventilation and eyewash provisions"
+ ],
+ tests:[
+  {n:"Float Voltage Survey", p:"Individual cell/unit float voltages; compare to OEM spec and flag outliers.", r:"ATS 7.18.1 / IEEE 450 (VLA) · 1188 (VRLA) · 1106 (NiCd)"},
+  {n:"Connection Resistance", p:"Micro-ohm each inter-cell/inter-tier connection; investigate values >20% above baseline average (per IEEE practice).", r:"ATS 7.18.1"},
+  {n:"Impedance/Conductance (VRLA trending)", p:"Ohmic test each unit; trend against baseline — the primary VRLA health indicator.", r:"IEEE 1188"},
+  {n:"Capacity/Discharge Test (acceptance & interval)", p:"Load-bank discharge at rated load to end voltage; capacity ≥90% typical acceptance. Modified performance tests on intervals per IEEE.", r:"IEEE 450/1188 / ATS 7.18.1"},
+  {n:"Charger Verification", p:"Verify float/equalize voltages, current limit, and alarms (high/low DC, ground detection).", r:"ATS 7.18.2"},
+  {n:"DC Ground Detection", p:"Verify unintentional ground alarm pickup; hunt any standing ground — a second ground trips things.", r:"ATS 7.18"}
+ ],
+ notes:"A standing DC ground is a loaded gun in a substation. Find it before the second one finds you."
+},
+arrester:{
+ name:"Surge Arresters & SPDs", sub:"MV/HV arresters, LV SPDs", neta:"ATS 7.19",
+ safety:["Treat a suspect arrester as failed-shorted until proven otherwise; isolate before test."],
+ vm:[
+  "Verify rating (MCOV/duty class) against system voltage and study",
+  "Inspect housing for cracks, tracking, or contamination",
+  "Verify ground lead short, straight, and properly sized; counter/monitor readable (HV)",
+  "LV SPD: verify status indicators, fusing, and short lead lengths"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Terminal to ground at class voltage; compare identical units — big deviation flags a degraded arrester.", r:"NETA Table 100.1"},
+  {n:"Watts-Loss / Power Factor (MV/HV)", p:"Doble-type test compared between identical units and against published typicals.", r:"ATS 7.19.2"},
+  {n:"Ground Connection", p:"Verify low-resistance path to the grounding system.", r:"ATS 7.19"}
+ ],
+ notes:"Arrester ground lead length matters — every foot adds L·di/dt to the protective level. Keep it short and straight."
+},
+cap:{
+ name:"Capacitors & Reactors", sub:"PF correction banks, filter/reactor sets", neta:"ATS 7.20",
+ safety:[
+  "Wait the full discharge time (internal resistors: 5 min typical LV, verify OEM), then manually short/ground EVERY unit before touching — internal resistors fail.",
+  "A capacitor with a bulged case is a projectile — do not approach energized."
+ ],
+ vm:[
+  "Verify kvar/voltage rating vs. design; inspect cases for bulging or leaks",
+  "Verify fusing per design; inspect for blown unit fuses",
+  "Verify discharge resistor provisions; check bank balance protection (unbalance CT/VT) wiring",
+  "Torque connections; verify enclosure ventilation"
+ ],
+ tests:[
+  {n:"Capacitance Measurement", p:"Measure each unit/phase; compare to nameplate within tolerance and between phases — drift indicates element failure.", r:"ATS 7.20.1"},
+  {n:"Insulation Resistance", p:"Terminals-to-case at appropriate voltage.", r:"NETA Table 100.1"},
+  {n:"Unbalance/Protection Function", p:"Verify neutral unbalance or protection scheme operates per settings.", r:"ATS 7.20"},
+  {n:"Reactor Impedance/Winding Resistance", p:"For filter/inrush reactors: verify inductance/impedance and winding resistance vs. nameplate.", r:"ATS 7.20.2"}
+ ],
+ notes:"On harmonic filter banks, capacitance drift detunes the filter — retune math matters, not just 'still works.'"
+},
+grounding:{
+ name:"Grounding Systems", sub:"Ground grids, electrodes, bonding", neta:"ATS 7.13",
+ safety:[
+  "Fall-of-potential testing near energized substations: transferred potential on test leads is real — insulated gloves on lead handling.",
+  "Never disconnect a ground on an energized system to 'test it.'"
+ ],
+ vm:[
+  "Inspect accessible grounding conductors, bonds, and connections for corrosion/damage",
+  "Verify equipment bonding jumpers and sizes per drawings/NEC 250",
+  "Verify fence, gate, and gradient control bonding at substations"
+ ],
+ tests:[
+  {n:"Fall-of-Potential (3-point)", p:"Electrode resistance with current probe far enough for the flat curve region (rule of thumb: probe at ~62% of distance, distance ≥5–10x grid diagonal). Compare to design value.", r:"ATS 7.13 / IEEE 81"},
+  {n:"Clamp-On Ground Test", p:"Quick multi-grounded-system check where a return path exists — not valid for isolated single electrodes.", r:"IEEE 81"},
+  {n:"Point-to-Point Continuity", p:"DLRO between the grid and equipment grounds — verifies bonding integrity across the system (typically fractions of an ohm).", r:"ATS 7.13"},
+  {n:"Soil Resistivity (design/where specified)", p:"Wenner 4-point method for design verification.", r:"IEEE 81"}
+ ],
+ notes:"Common spec target is ≤5 Ω for commercial/industrial, ≤1 Ω for substations — but the DESIGN value governs. Alaska soils frozen half the year will read very differently by season; note ground conditions on the report."
+},
+ats:{
+ name:"Automatic Transfer Switches", sub:"ATS incl. bypass-isolation", neta:"ATS 7.22.3",
+ safety:[
+  "Two sources — verify BOTH isolated for de-energized work; ATS mechanisms store spring energy.",
+  "Coordinate transfer testing with the facility; know what loses power and for how long."
+ ],
+ vm:[
+  "Compare nameplate/withstand rating with drawings and available fault current",
+  "Verify settings: pickup/dropout voltages & frequency, time delays (engine start, transfer, retransfer, cooldown)",
+  "Inspect contacts and arc chutes per OEM; exercise manually where OEM permits",
+  "Verify SE rating vs. service-entrance application; neutral switching (3P vs 4P) per system design"
+ ],
+ tests:[
+  {n:"Insulation & Contact Resistance", p:"IR pole-to-pole/ground; DLRO through each pole both source positions.", r:"NETA Table 100.1 / ATS 7.22.3"},
+  {n:"Voltage/Frequency Sensing Calibration", p:"Verify pickup/dropout thresholds by variable source or built-in test; compare to settings sheet.", r:"ATS 7.22.3"},
+  {n:"Full Transfer Sequence Test", p:"Simulate normal-source failure: verify engine start signal, transfer time, retransfer with delay, and engine cooldown. Both directions, with load where authorized.", r:"ATS 7.22.3 / NFPA 110 (where EPSS)"},
+  {n:"Bypass-Isolation Function", p:"Where fitted, verify bypass to both sources and isolation drawout without load interruption.", r:"ATS 7.22.3"}
+ ],
+ notes:"On healthcare/EPSS work, NFPA 110 monthly test documentation requirements apply on top of NETA — flag it in the report."
+}
+};
+
+/* ============================ APP ============================ */
+const home = document.getElementById('home');
+const detail = document.getElementById('detail');
+const detailBody = document.getElementById('detailBody');
+const searchWrap = document.getElementById('searchWrap');
+const q = document.getElementById('q');
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function hl(s,term){
+  if(!term) return esc(s);
+  const i = s.toLowerCase().indexOf(term.toLowerCase());
+  if(i<0) return esc(s);
+  return esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+term.length))+'</mark>'+esc(s.slice(i+term.length));
+}
+
+function renderHome(filter){
+  const term=(filter||'').trim().toLowerCase();
+  let html='', any=false;
+  for(const g of GROUPS){
+    let rows='';
+    for(const id of g.items){
+      const e=EQ[id];
+      if(term){
+        const hay=[e.name,e.sub,e.neta,...e.vm,...e.tests.map(t=>t.n+' '+t.p),e.notes||''].join(' ').toLowerCase();
+        if(!hay.includes(term)) continue;
+      }
+      rows+=`<button class="row" data-id="${id}">
+        <span class="name">${hl(e.name,term)}<small>${hl(e.sub,term)}</small></span>
+        <span class="tag">${e.neta}</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+      </button>`;
+    }
+    if(rows){any=true;html+=`<div class="group"><div class="group-label">${g.label}</div>${rows}</div>`;}
+  }
+  home.innerHTML = any?html:'<div class="no-results">No matches. Try a test name (e.g., "TTR", "VLF", "primary injection") or equipment type.</div>';
+}
+
+function showDetail(id){
+  const e=EQ[id];
+  let h=`<div class="nameplate"><h2>${esc(e.name)}</h2>
+    <div class="refline">${esc(e.sub)} &nbsp;·&nbsp; REF <b>NETA ${esc(e.neta)}</b></div></div>`;
+  h+=`<div class="safety"><h3>⚠ Safety — Before You Start</h3><ul>${e.safety.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`;
+  h+=`<div class="sec"><h3>Visual &amp; Mechanical Inspection</h3><ul class="check">${e.vm.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>`;
+  h+=`<div class="sec"><h3>Electrical Tests</h3>${e.tests.map(t=>`<div class="test"><h4>${esc(t.n)}</h4><p>${esc(t.p)}</p><span class="ref">${esc(t.r)}</span></div>`).join('')}</div>`;
+  if(e.notes) h+=`<div class="sec"><h3>Field Notes</h3><p class="notes">${esc(e.notes)}</p></div>`;
+  if(e.satsu && e.satsu.length){
+    h+=`<div class="sec"><h3>SATSU Requirements</h3><ul class="check">${e.satsu.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`;
+  } else {
+    h+=`<div class="sec"><h3>SATSU Requirements</h3><div class="stub"><b>Pending company content.</b> Eaton SATSU procedures, hold points, and documentation requirements for this equipment class will appear here once loaded. Until then, follow SATSU directly for safety and documentation requirements — SATSU governs where it conflicts with this reference.</div></div>`;
+  }
+  detailBody.innerHTML=h;
+  home.classList.add('hidden');
+  searchWrap.classList.add('hidden');
+  detail.style.display='block';
+  detail.classList.add('show');
+  window.scrollTo(0,0);
+  try{history.pushState({id},'', '#'+id);}catch(_){/* sandboxed preview */}
+}
+
+function showHome(){
+  detail.style.display='none';
+  detail.classList.remove('show');
+  home.classList.remove('hidden');
+  searchWrap.classList.remove('hidden');
+}
+
+home.addEventListener('click',ev=>{
+  const b=ev.target.closest('.row');
+  if(b) showDetail(b.dataset.id);
+});
+document.getElementById('backBtn').addEventListener('click',()=>{try{history.back();}catch(_){ } setTimeout(()=>{if(detail.style.display==='block')showHome();},60);});
+window.addEventListener('popstate',ev=>{
+  if(ev.state&&ev.state.id&&EQ[ev.state.id]) showDetail(ev.state.id); else showHome();
+});
+q.addEventListener('input',()=>renderHome(q.value));
+
+renderHome('');
+if(location.hash){const id=location.hash.slice(1);if(EQ[id])showDetail(id);}
+
+try{if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(_){/* sandboxed preview */}
+</script>
+</body>
+</html>
