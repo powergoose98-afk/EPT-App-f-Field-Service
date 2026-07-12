@@ -1,4 +1,4 @@
-const CACHE = 'test-bench-v6';
+const CACHE = 'test-bench-v7';
 const CORE = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {

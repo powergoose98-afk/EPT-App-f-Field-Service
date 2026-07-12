@@ -41,6 +41,17 @@ header{position:sticky;top:0;z-index:20;background:var(--eaton-blue);color:#fff;
 .brand .rev{font-family:var(--mono);font-size:12px;color:#FFFFFF}
 .tagline{font-size:13px;color:#FFFFFF;margin-top:2px}
 
+/* ---------- mode tabs ---------- */
+.tabs{display:flex;gap:0;margin:12px 16px 0;max-width:760px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.tab{flex:1;padding:10px 0;font-size:13.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center}
+.tab.active{background:var(--eaton-blue);color:#fff}
+@media(min-width:792px){.tabs{margin-left:auto;margin-right:auto}}
+.pit{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.pit h4{font-size:16px;font-weight:700;color:var(--heading)}
+.pit p{font-size:14.5px;margin-top:6px}
+.pit .lbl{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--accent);display:block;margin-top:8px}
+.pit p:first-of-type{margin-top:4px}
+
 /* ---------- search ---------- */
 .search-wrap{padding:12px 16px 4px}
 .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -136,7 +147,7 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
 <header>
   <div class="hdr-row">
     <div>
-      <div class="brand"><h1>Test Bench</h1><span class="rev">REV 1.1 · FIELD REF</span></div>
+      <div class="brand"><h1>Test Bench</h1><span class="rev">REV 1.2 · FIELD REF</span></div>
       <div class="tagline">ACCEPTANCE &amp; MAINTENANCE TESTING · PER NETA ATS/MTS + SATSU</div>
     </div>
     <button class="gear" id="gearBtn" aria-label="SATSU content settings">
@@ -159,6 +170,11 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
     <p class="sp-note" id="spMsg"></p>
     <button class="sp-btn ghost" id="closePanel">Close</button>
   </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-mode="test">Testing</button>
+  <button class="tab" data-mode="ts">Troubleshooting</button>
 </div>
 
 <div class="search-wrap" id="searchWrap">
@@ -729,6 +745,109 @@ ats:{
 
 const ART = {"lvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"8\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"44\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"80\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"14\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"14\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"36\" width=\"20\" height=\"12\"/><line x1=\"8\" y1=\"62\" x2=\"112\" y2=\"62\"/></svg>", "mvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"16\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"64\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"22\" y=\"14\" width=\"28\" height=\"16\"/><rect x=\"70\" y=\"14\" width=\"28\" height=\"16\"/><circle cx=\"36\" cy=\"50\" r=\"6\"/><circle cx=\"84\" cy=\"50\" r=\"6\"/><line x1=\"16\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "bus": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"30\" width=\"108\" height=\"20\"/><line x1=\"34\" y1=\"24\" x2=\"34\" y2=\"56\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"56\"/><line x1=\"90\" y1=\"24\" x2=\"90\" y2=\"56\"/><line x1=\"20\" y1=\"56\" x2=\"20\" y2=\"66\"/><line x1=\"100\" y1=\"56\" x2=\"100\" y2=\"66\"/></svg>", "mccb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"38\" y=\"8\" width=\"44\" height=\"64\" rx=\"4\"/><rect x=\"52\" y=\"30\" width=\"16\" height=\"20\" rx=\"2\"/><line x1=\"60\" y1=\"34\" x2=\"60\" y2=\"40\"/><line x1=\"44\" y1=\"16\" x2=\"76\" y2=\"16\"/><line x1=\"44\" y1=\"62\" x2=\"76\" y2=\"62\"/></svg>", "lvpcb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"80\" height=\"60\" rx=\"3\"/><circle cx=\"44\" cy=\"40\" r=\"10\"/><line x1=\"44\" y1=\"34\" x2=\"44\" y2=\"46\"/><rect x=\"64\" y=\"24\" width=\"26\" height=\"10\"/><rect x=\"64\" y=\"42\" width=\"26\" height=\"14\"/><line x1=\"28\" y1=\"62\" x2=\"36\" y2=\"62\"/><line x1=\"84\" y1=\"62\" x2=\"92\" y2=\"62\"/></svg>", "mvvac": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"54\" width=\"100\" height=\"16\"/><rect x=\"20\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"52\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"84\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><line x1=\"28\" y1=\"8\" x2=\"28\" y2=\"14\"/><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"14\"/><line x1=\"92\" y1=\"8\" x2=\"92\" y2=\"14\"/></svg>", "drytx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"10\" width=\"92\" height=\"60\"/><circle cx=\"38\" cy=\"40\" r=\"13\"/><circle cx=\"60\" cy=\"40\" r=\"13\"/><circle cx=\"82\" cy=\"40\" r=\"13\"/><line x1=\"20\" y1=\"16\" x2=\"30\" y2=\"16\"/><line x1=\"34\" y1=\"16\" x2=\"44\" y2=\"16\"/><line x1=\"48\" y1=\"16\" x2=\"58\" y2=\"16\"/></svg>", "liqtx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"22\" width=\"60\" height=\"48\" rx=\"3\"/><line x1=\"18\" y1=\"28\" x2=\"18\" y2=\"64\"/><line x1=\"24\" y1=\"26\" x2=\"24\" y2=\"66\"/><line x1=\"96\" y1=\"26\" x2=\"96\" y2=\"66\"/><line x1=\"102\" y1=\"28\" x2=\"102\" y2=\"64\"/><line x1=\"42\" y1=\"22\" x2=\"42\" y2=\"10\"/><line x1=\"60\" y1=\"22\" x2=\"60\" y2=\"10\"/><line x1=\"78\" y1=\"22\" x2=\"78\" y2=\"10\"/><circle cx=\"42\" cy=\"8\" r=\"2.5\"/><circle cx=\"60\" cy=\"8\" r=\"2.5\"/><circle cx=\"78\" cy=\"8\" r=\"2.5\"/></svg>", "itx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"44\" cy=\"40\" r=\"24\"/><circle cx=\"44\" cy=\"40\" r=\"12\"/><line x1=\"44\" y1=\"16\" x2=\"44\" y2=\"4\"/><rect x=\"80\" y=\"26\" width=\"28\" height=\"28\"/><line x1=\"94\" y1=\"26\" x2=\"94\" y2=\"14\"/><line x1=\"88\" y1=\"54\" x2=\"88\" y2=\"64\"/><line x1=\"100\" y1=\"54\" x2=\"100\" y2=\"64\"/></svg>", "lvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 50 C 30 20, 60 66, 88 34\"/><path d=\"M8 58 C 30 28, 60 74, 88 42\"/><line x1=\"88\" y1=\"34\" x2=\"106\" y2=\"26\"/><line x1=\"88\" y1=\"42\" x2=\"106\" y2=\"40\"/><line x1=\"88\" y1=\"42\" x2=\"104\" y2=\"52\"/></svg>", "mvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"28\"/><circle cx=\"60\" cy=\"40\" r=\"19\"/><circle cx=\"60\" cy=\"40\" r=\"11\"/><circle cx=\"60\" cy=\"40\" r=\"4\" fill=\"currentColor\"/></svg>", "airsw": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"56\" r=\"4\"/><circle cx=\"88\" cy=\"56\" r=\"4\"/><line x1=\"28\" y1=\"54\" x2=\"78\" y2=\"20\"/><line x1=\"8\" y1=\"56\" x2=\"20\" y2=\"56\"/><line x1=\"92\" y1=\"56\" x2=\"112\" y2=\"56\"/><line x1=\"78\" y1=\"20\" x2=\"84\" y2=\"14\"/></svg>", "mcc": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"8\" width=\"92\" height=\"64\"/><line x1=\"45\" y1=\"8\" x2=\"45\" y2=\"72\"/><line x1=\"76\" y1=\"8\" x2=\"76\" y2=\"72\"/><line x1=\"14\" y1=\"30\" x2=\"106\" y2=\"30\"/><line x1=\"14\" y1=\"52\" x2=\"106\" y2=\"52\"/><rect x=\"22\" y=\"14\" width=\"14\" height=\"8\"/><rect x=\"53\" y=\"36\" width=\"14\" height=\"8\"/><rect x=\"84\" y=\"58\" width=\"14\" height=\"8\"/></svg>", "acmotor": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"22\" y=\"24\" width=\"58\" height=\"36\" rx=\"6\"/><line x1=\"80\" y1=\"42\" x2=\"104\" y2=\"42\"/><line x1=\"30\" y1=\"24\" x2=\"30\" y2=\"14\"/><line x1=\"46\" y1=\"24\" x2=\"46\" y2=\"14\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"14\"/><line x1=\"30\" y1=\"14\" x2=\"62\" y2=\"14\"/><line x1=\"22\" y1=\"60\" x2=\"16\" y2=\"70\"/><line x1=\"80\" y1=\"60\" x2=\"86\" y2=\"70\"/></svg>", "asd": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"8\" width=\"60\" height=\"64\" rx=\"3\"/><rect x=\"38\" y=\"16\" width=\"44\" height=\"14\"/><circle cx=\"44\" cy=\"42\" r=\"3\"/><circle cx=\"56\" cy=\"42\" r=\"3\"/><circle cx=\"68\" cy=\"42\" r=\"3\"/><line x1=\"38\" y1=\"56\" x2=\"42\" y2=\"56\"/><line x1=\"46\" y1=\"56\" x2=\"50\" y2=\"56\"/><line x1=\"54\" y1=\"56\" x2=\"58\" y2=\"56\"/><line x1=\"62\" y1=\"56\" x2=\"66\" y2=\"56\"/><line x1=\"70\" y1=\"56\" x2=\"74\" y2=\"56\"/><line x1=\"38\" y1=\"63\" x2=\"82\" y2=\"63\"/></svg>", "relay": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"24\" y=\"12\" width=\"72\" height=\"56\" rx=\"3\"/><rect x=\"32\" y=\"20\" width=\"34\" height=\"16\"/><circle cx=\"78\" cy=\"24\" r=\"3\"/><circle cx=\"88\" cy=\"24\" r=\"3\"/><circle cx=\"78\" cy=\"34\" r=\"3\"/><circle cx=\"88\" cy=\"34\" r=\"3\"/><rect x=\"32\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"46\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"60\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"74\" y=\"46\" width=\"8\" height=\"12\"/></svg>", "gfp": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"26\"/><line x1=\"50\" y1=\"6\" x2=\"50\" y2=\"74\"/><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"74\"/><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"74\"/><line x1=\"86\" y1=\"46\" x2=\"106\" y2=\"46\"/><rect x=\"100\" y=\"40\" width=\"14\" height=\"12\"/></svg>", "meter": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"28\" y=\"12\" width=\"64\" height=\"56\" rx=\"4\"/><circle cx=\"60\" cy=\"38\" r=\"18\"/><line x1=\"60\" y1=\"38\" x2=\"70\" y2=\"26\"/><line x1=\"46\" y1=\"60\" x2=\"74\" y2=\"60\"/></svg>", "battery": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"42\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"74\" y=\"26\" width=\"24\" height=\"34\"/><line x1=\"16\" y1=\"26\" x2=\"16\" y2=\"18\"/><line x1=\"28\" y1=\"26\" x2=\"28\" y2=\"18\"/><line x1=\"48\" y1=\"26\" x2=\"48\" y2=\"18\"/><line x1=\"60\" y1=\"26\" x2=\"60\" y2=\"18\"/><line x1=\"80\" y1=\"26\" x2=\"80\" y2=\"18\"/><line x1=\"92\" y1=\"26\" x2=\"92\" y2=\"18\"/><line x1=\"28\" y1=\"20\" x2=\"48\" y2=\"20\"/><line x1=\"60\" y1=\"20\" x2=\"80\" y2=\"20\"/><line x1=\"6\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "arrester": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"12\"/><path d=\"M44 16 h32 M48 24 h24 M44 32 h32 M48 40 h24 M44 48 h32 M48 56 h24\"/><line x1=\"60\" y1=\"58\" x2=\"60\" y2=\"68\"/><line x1=\"50\" y1=\"68\" x2=\"70\" y2=\"68\"/><line x1=\"54\" y1=\"72\" x2=\"66\" y2=\"72\"/><line x1=\"58\" y1=\"76\" x2=\"62\" y2=\"76\"/></svg>", "cap": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"18\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"50\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"82\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><line x1=\"28\" y1=\"20\" x2=\"28\" y2=\"10\"/><line x1=\"60\" y1=\"20\" x2=\"60\" y2=\"10\"/><line x1=\"92\" y1=\"20\" x2=\"92\" y2=\"10\"/><line x1=\"28\" y1=\"10\" x2=\"92\" y2=\"10\"/><line x1=\"12\" y1=\"66\" x2=\"108\" y2=\"66\"/></svg>", "grounding": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"40\"/><line x1=\"40\" y1=\"40\" x2=\"80\" y2=\"40\"/><line x1=\"47\" y1=\"50\" x2=\"73\" y2=\"50\"/><line x1=\"54\" y1=\"60\" x2=\"66\" y2=\"60\"/><line x1=\"16\" y1=\"70\" x2=\"104\" y2=\"70\"/><line x1=\"24\" y1=\"70\" x2=\"18\" y2=\"78\"/><line x1=\"44\" y1=\"70\" x2=\"38\" y2=\"78\"/><line x1=\"64\" y1=\"70\" x2=\"58\" y2=\"78\"/><line x1=\"84\" y1=\"70\" x2=\"78\" y2=\"78\"/></svg>", "ats": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"12\" y1=\"20\" x2=\"46\" y2=\"20\"/><line x1=\"12\" y1=\"60\" x2=\"46\" y2=\"60\"/><circle cx=\"50\" cy=\"20\" r=\"4\"/><circle cx=\"50\" cy=\"60\" r=\"4\"/><line x1=\"53\" y1=\"22\" x2=\"84\" y2=\"38\"/><circle cx=\"87\" cy=\"40\" r=\"4\"/><line x1=\"91\" y1=\"40\" x2=\"112\" y2=\"40\"/><text x=\"14\" y=\"14\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">N</text><text x=\"14\" y=\"54\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">E</text></svg>"};
 
+
+/* ============== TROUBLESHOOTING CONTENT — test equipment pitfalls ============== */
+const TSGROUPS = [
+ {label:"Insulation & Dielectric", items:["megger","pf","hipot"]},
+ {label:"Resistance & Ratio", items:["dlro","wres","ttr"]},
+ {label:"Injection & Protection", items:["priminj","secinj","relaytest"]},
+ {label:"Field Instruments", items:["groundtest","battest","thermo","dmm"]}
+];
+const TS = {
+megger:{ name:"Insulation Resistance (Megger)", sub:"Pitfalls that wreck IR readings",
+ items:[
+  {n:"Reading is low but the equipment is fine", why:"Surface leakage across dirty, damp, or contaminated bushings and insulators carries current around the insulation, not through it. Humidity condensing on cold gear after a door opens does the same.", fix:"Clean and dry surfaces, use the GUARD terminal to intercept surface leakage, and retest. If guard recovers the reading, the insulation was never the problem."},
+  {n:"Low reading — but you're testing half the substation", why:"Cables still landed, arresters, CTs/VTs, or control transformers in parallel with what you think you're testing all pull the reading down to the lowest item connected.", fix:"Isolate the component under test. If you can't fully isolate, identify everything in parallel and note it on the report — or the number is meaningless for trending."},
+  {n:"Reading keeps climbing and never settles", why:"That's dielectric absorption — normal capacitive/polarization charging, especially on cables, large windings, and long bus. It isn't drift or a bad meter.", fix:"Standardize the read time (1-minute spot reading) so tests are comparable, or use it: PI and DAR ratios turn that climb into diagnostic data."},
+  {n:"Same gear, different day, wildly different reading", why:"IR roughly halves for every 10°C temperature rise. A winter reading and a summer reading aren't comparable raw.", fix:"Record equipment temperature every test and correct to a reference temperature before comparing or trending. Up here, the swing between seasons will dwarf real insulation change."},
+  {n:"Nuisance shock or damaged electronics after test", why:"Windings and cables store charge after a DC test — and anything solid-state left connected (trip units, RTD circuits, drives) can be damaged by test voltage.", fix:"Disconnect electronics before testing, and ground the tested item for at least the test duration (longer for cables) before touching. Make discharge part of the sequence, not an afterthought."},
+  {n:"Battery-low test set lies quietly", why:"A weak megger may not sustain rated test voltage into a capacitive load, producing an optimistic reading at some undefined lower voltage.", fix:"Verify the set holds rated output (most display actual test voltage). Charge or swap before condemning — or clearing — anything."}
+ ]},
+pf:{ name:"Power Factor / Dissipation Factor", sub:"Doble-type test gotchas",
+ items:[
+  {n:"Results make no sense (huge %PF or negative)", why:"Wrong test mode — GST, GSTg, and UST measure different insulation paths. Measuring UST when you meant GST includes or excludes entirely different capacitances.", fix:"Sketch the specimen and identify which insulation you're measuring before connecting. Verify capacitance against nameplate/factory values — if C is way off, the mode or hookup is wrong."},
+  {n:"Readings vary test-to-test in an energized substation", why:"Electrostatic interference from adjacent energized buses couples into the measurement.", fix:"Use the test set's interference suppression/line-frequency modulation feature, orient leads away from energized gear, and take multiple readings. If scatter persists, note the conditions on the report."},
+  {n:"Bushing tests slowly trending worse across the fleet", why:"Could be real aging — or could be you're testing at different temperatures each year without correcting.", fix:"Temperature-correct every result and trend corrected values only. One bushing worsening = investigate the bushing; all of them 'worsening' identically = check your correction."},
+  {n:"Dirty weather ruins the day", why:"Surface moisture and contamination dominate the measurement on external insulation.", fix:"Clean and dry porcelain, use guard/collar techniques on bushings, and when humidity is high, record it — or reschedule. A wet-day PF result isn't worth arguing about."}
+ ]},
+hipot:{ name:"Hipot / VLF Withstand", sub:"Overpotential test traps",
+ items:[
+  {n:"High 'leakage' current that isn't leakage", why:"Capacitive charging current, especially on long cables, dwarfs real leakage — and on DC tests it decays over minutes. Panicking at the initial current condemns good cable.", fix:"Let charging current stabilize before evaluating; judge trend and stability, not the initial magnitude. On VLF, know your cable's capacitance vs the set's rating before you start."},
+  {n:"Trip/flashover at the far end", why:"The far end wasn't cleared — still landed on equipment, or somebody's jumper is hanging on it. The far end is where withstand tests hurt people.", fix:"Physically verify and barricade BOTH ends before every energization. Far-end control is a hard rule, not a courtesy."},
+  {n:"Corona hiss and unstable current at terminations", why:"Sharp points, unfinished stress cones, or floating hardware ionize at test voltage and inflate leakage readings.", fix:"Finish terminations properly, use corona rings/shields on temporary connections, keep leads short and high."},
+  {n:"Cable fails shortly after 'passing' a DC test", why:"DC hipot on aged extruded (XLPE/EPR) cable injects space charge that can finish off marginal insulation after the test.", fix:"Use VLF for extruded cable, full stop. Save DC withstand for laminated (PILC) cable and switchgear bus."},
+  {n:"Stored energy after test", why:"A hipoted cable is a charged capacitor at kilovolts.", fix:"Ground through the set's discharge function, then apply safety grounds and leave them (rule of thumb: ground at least 4x the test duration) before anyone touches conductors."}
+ ]},
+dlro:{ name:"Low-Resistance Ohmmeter (DLRO)", sub:"Micro-ohm measurement pitfalls",
+ items:[
+  {n:"Reading is high and inconsistent between attempts", why:"Potential leads placed outside the current leads, or probes on paint, oxide, or plating instead of clean metal — you're measuring your own connection.", fix:"Kelvin discipline: potential leads INSIDE the current leads, on clean bare metal, directly across the joint under test. Repeatability across three placements is your sanity check."},
+  {n:"Breaker contact readings look bad at low current", why:"Oxide films on contacts need current to punch through; a 10 A test can read a contact that's fine at 100 A as high-resistance.", fix:"Use ≥100 A for breaker main contacts per common practice, and compare pole-to-pole at the SAME current. Never mix test currents when trending."},
+  {n:"Values drift during the measurement", why:"Thermal EMF at dissimilar-metal junctions creates a small DC offset, and long measurements heat the joint.", fix:"Use a set with automatic polarity-reversal averaging, keep measurements short, and let readings settle before recording."},
+  {n:"One pole reads different — is it real?", why:"Might be the contact; might be your probe placement landed across a different set of joints on that pole.", fix:"Define exactly what's between your potential probes and measure all poles across the same span. Comparing 'stab-to-stab' on one pole against 'terminal-to-terminal' on another is fiction."}
+ ]},
+wres:{ name:"Winding Resistance", sub:"Transformer & machine winding tests",
+ items:[
+  {n:"Reading never stabilizes", why:"You're charging a huge inductance — large transformer windings can take minutes to reach steady-state current, and reading early gives garbage.", fix:"Wait for the current to fully stabilize (test sets show it); use a set with enough compliance voltage for the winding. Patience is the test."},
+  {n:"Every test after winding resistance reads weird", why:"The DC test magnetized the core. Residual magnetism skews excitation current tests, can trip on inrush at energization, and confuses TTR on some sets.", fix:"Demagnetize after winding resistance — most modern sets have a demag function. Do winding resistance LAST if you can't demag."},
+  {n:"Phases don't match each other", why:"On delta windings you're reading parallel paths; on LTC units, the tap changer contact is in your circuit; temperature differences skew comparison.", fix:"Know the winding configuration and calculate what phase-to-phase should read; test each tap on LTC units — a step change across one tap transition is a contact problem, not a winding problem."}
+ ]},
+ttr:{ name:"Turns Ratio (TTR)", sub:"Ratio test errors",
+ items:[
+  {n:"Ratio reads as the reciprocal or wildly off", why:"H and X leads swapped, or leads on the wrong bushings for the vector group. The set is exciting the LV winding thinking it's HV.", fix:"Verify lead-to-bushing mapping against the nameplate vector diagram before energizing the set. If the ratio is exactly inverted, it's your leads."},
+  {n:"One tap out of tolerance, all others fine", why:"Tap changer contact on that position — dirty, misaligned, or worn — not a winding problem.", fix:"Exercise the tap changer through full travel several times and retest. If it cleans up, document it; if not, investigate the LTC/DETC."},
+  {n:"Fails tolerance on a dual-winding or zig-zag unit", why:"Comparing measured ratio against the wrong calculation — line-to-line vs phase voltages, or an unaccounted phase shift for the vector group.", fix:"Compute expected ratio for the actual connection per phase. Modern sets do this if you enter the correct vector group — so enter it."},
+  {n:"Excitation current alarms during TTR", why:"Residual magnetism from a prior DC test (winding resistance, megger).", fix:"Demagnetize the core, then repeat. See winding resistance pitfalls."}
+ ]},
+priminj:{ name:"Primary Injection", sub:"High-current test set pitfalls",
+ items:[
+  {n:"Ground fault element won't trip no matter what", why:"Your return path routes back through the sensing window or neutral sensor, cancelling the signal — the trip unit sees zero net current. Rogowski-based systems are especially unforgiving about routing.", fix:"Route the return conductor OUTSIDE all sensing windows and away from Rogowski coils. Draw the current path before you connect anything."},
+  {n:"Can't reach test current", why:"Test loop impedance is too high — long thin leads, loose clamps, or injecting through too much circuit. High-current sets need a low-impedance loop.", fix:"Shortest, fattest leads possible; clean bolted connections instead of spring clamps; inject as close to the device as the test allows."},
+  {n:"Times are off but the device is fine", why:"Injecting at low multiples with the set's duty cycle running out, output waveform distorting into the sensor, or you're reading total time including your own ramping.", fix:"Verify the set can sustain the required current for the required time; use the set's timing gates properly; check published curve tolerance bands before failing a device."},
+  {n:"Trip unit behaves differently than expected in the cell", why:"Breaker tested in the CONNECTED position interacts with upstream protection, ZSI restraint signals, or external CTs you forgot about.", fix:"Understand what's wired to the trip unit in that cell (ZSI, neutral CT, external ground source) and test in a configuration that isolates what you intend to prove."}
+ ]},
+secinj:{ name:"Secondary Injection", sub:"Trip unit / test kit limitations",
+ items:[
+  {n:"Secondary test passed, breaker still doesn't protect", why:"Secondary injection bypasses the sensors and their wiring — it proves the trip unit's brain, not the current path feeding it. A wrong-ratio sensor, unplugged rating plug, or damaged harness sails through.", fix:"Treat secondary injection as a supplement. Prove sensors and wiring with primary injection at least once (acceptance), and any time the current path was disturbed."},
+  {n:"Breaker left dead after testing", why:"Test kit left the unit in test mode, settings unrestored, or a maintenance mode (ARMS/reduced instantaneous) left engaged.", fix:"Hard rule: photograph as-found settings before testing, restore and photograph as-left, and verify the unit shows healthy/normal status before walking away."},
+  {n:"Standing alarms after test", why:"Test-generated trip events remain logged and unacknowledged in the trip unit or supervisory software.", fix:"Clear/acknowledge events in the unit and in the monitoring system (PXPM/PXG or equivalent) as part of demob — an inherited standing alarm erodes the customer's trust in the whole system."}
+ ]},
+relaytest:{ name:"Protective Relay Testing", sub:"Relay test set pitfalls",
+ items:[
+  {n:"Element won't pick up where settings say it should", why:"Test set injecting into the wrong relay input, CT ratio in the relay scaling your injected quantity, or the element is torque-controlled/supervised by something you didn't simulate.", fix:"Read the logic, not just the setting: know what supervises the element (voltage, direction, breaker status) and simulate all of it. Verify which physical terminals map to which relay inputs."},
+  {n:"You tripped something in service", why:"Trip outputs weren't isolated before injecting — the relay did exactly what it's designed to do.", fix:"Open trip test switches / isolate output contacts FIRST, verify isolation, then test. Restore in reverse order with a checklist. This is the career-limiting one."},
+  {n:"Relay 'fails' timing by a few cycles", why:"You're measuring with the wrong gate (includes output contact delay or your set's ramp), or comparing against the curve without tolerance.", fix:"Time from injection to output contact with proper start/stop gates, and apply the manufacturer's stated tolerance before calling a failure."},
+  {n:"Settings don't match the study — who's right?", why:"As-found settings may reflect an authorized field change the study never captured, or a botched previous test restore.", fix:"Never silently 'correct' either direction. Document as-found, escalate the discrepancy, get a directive, document as-left."}
+ ]},
+groundtest:{ name:"Ground Resistance Testing", sub:"Fall-of-potential & clamp-on traps",
+ items:[
+  {n:"Reading changes every time you move the probe", why:"Probes are inside the grid's influence zone — the curve never flattens because you're measuring overlapping potential fields.", fix:"Get the current probe genuinely far away (multiples of the grid diagonal), plot several potential-probe positions, and use the flat region. If there's no flat region, your probes aren't far enough."},
+  {n:"Clamp-on reads great; system is actually poor", why:"Clamp-on meters measure the loop through parallel paths — a multi-grounded neutral or bonded structures give a low loop reading regardless of your electrode.", fix:"Clamp-on only works where a valid low-impedance return exists. For isolated electrodes or verification against a design value, fall-of-potential is the answer."},
+  {n:"Winter readings look terrible", why:"Frozen soil resistivity is enormously higher — an Alaska grid can read several times its summer value with nothing wrong.", fix:"Record ground conditions (frozen/thawed, moisture) with every test and compare season-to-season, not test-to-test. Design values assume specified soil conditions."},
+  {n:"Long test leads couple to each other", why:"Current and potential leads run parallel for hundreds of feet induce error into the potential measurement.", fix:"Separate the lead runs, don't coil excess lead, and use a test frequency setting that rejects power-frequency interference near energized corridors."}
+ ]},
+battest:{ name:"Battery Testing", sub:"Ohmic & discharge test pitfalls",
+ items:[
+  {n:"Ohmic readings improved after maintenance — suspiciously", why:"You retorqued and cleaned connections; the strap resistance dropped, not the cell's internal condition. Or the battery is holding surface charge after an equalize.", fix:"Measure connection resistance and cell ohmics separately, and let batteries sit at float (hours, per practice) after equalize before ohmic testing."},
+  {n:"Trending is useless — values jump around", why:"Different probe locations on posts test-to-test, different temperature, or different instruments (conductance vs impedance don't compare).", fix:"Same instrument, same probe points (mark them), record temperature, and trend percent-change from THAT string's baseline — not against generic tables."},
+  {n:"String passed ohmic tests, failed the outage", why:"Ohmic tests catch degradation trends, not exact capacity. A string can trend 'okay' and still lack minutes.", fix:"Ohmic testing supplements — never replaces — periodic capacity discharge tests. If the load matters, the load bank is the truth."},
+  {n:"Ground fault alarm during testing", why:"Your test equipment or a lifted lead referenced the DC system to ground.", fix:"Know the DC system is ungrounded; use isolated instruments, and if a ground alarm appears while you're working — it's probably you. Stop and check before hunting the system."}
+ ]},
+thermo:{ name:"Thermography", sub:"IR scanning pitfalls",
+ items:[
+  {n:"Shiny bus reads cold while cooking", why:"Low-emissivity surfaces (bright copper, aluminum, galvanized) reflect the room instead of emitting — the camera reads the reflection.", fix:"Use ΔT comparison between identical components rather than absolute temps on shiny surfaces; add high-emissivity targets (tape/paint) at known points where the program allows."},
+  {n:"Everything looks fine at 10% load", why:"Heating rises with I² — a joint that's deadly at full load is invisible at light load.", fix:"Scan at ≥40% load where possible, record the load at scan time, and never write 'no exceptions' without stating the load it was based on."},
+  {n:"Hot spot turns out to be a reflection", why:"Sun, lights, or your own body heat reflecting off the surface into the lens.", fix:"Move and re-shoot from a second angle — a real hot spot stays put on the component; a reflection moves with you."},
+  {n:"Scanning through an IR window changes everything", why:"IR windows attenuate — the reading through crystal or polymer windows is lower than actual, by a factor that varies with window type and age.", fix:"Apply the window's transmission correction in the camera, keep the window clean, and compare like-through-like only."}
+ ]},
+dmm:{ name:"Multimeters & General", sub:"Everyday instrument traps",
+ items:[
+  {n:"Circuit reads 90 V but nothing's on it", why:"Ghost voltage — capacitive coupling from adjacent live conductors read by a high-impedance meter that loads the circuit with essentially nothing.", fix:"Use the low-impedance (LoZ) mode to collapse phantom readings. If it vanishes on LoZ, it was coupling; if it stays, it's real."},
+  {n:"Clamp meter reads zero on a live circuit", why:"Clamped around both conductors (net zero), DC current with an AC-only clamp, or the current fuse in your meter blew silently on the last job.", fix:"Clamp one conductor only, match the clamp technology to the current type, and verify your meter on a known source before trusting a zero."},
+  {n:"Continuity beeps through a de-energized 'open'", why:"Parallel paths — control transformers, resistors, and coils all beep. Continuity proves a path exists, not which path.", fix:"Lift a lead to isolate what you're actually checking, or use resistance mode and interpret the value."},
+  {n:"Meter survived, hands didn't (almost)", why:"CAT rating too low for the location — a meter rated CAT III 600 V has no business on 480 V service entrance or in MV gear at all.", fix:"Match the CAT rating to the worst location you'll probe today, inspect leads for damage, and use fused leads. The rating is about surviving the transient, not the steady-state voltage."}
+ ]}
+};
+
 /* ============================ APP ============================ */
 const home = document.getElementById('home');
 const detail = document.getElementById('detail');
@@ -744,26 +863,48 @@ function hl(s,term){
   return esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+term.length))+'</mark>'+esc(s.slice(i+term.length));
 }
 
+let MODE='test';
 function renderHome(filter){
   const term=(filter||'').trim().toLowerCase();
+  const groups = MODE==='test'?GROUPS:TSGROUPS;
+  const data = MODE==='test'?EQ:TS;
   let html='', any=false;
-  for(const g of GROUPS){
+  for(const g of groups){
     let rows='';
     for(const id of g.items){
-      const e=EQ[id];
+      const e=data[id];
       if(term){
-        const hay=[e.name,e.sub,e.neta,...e.vm,...e.tests.map(t=>t.n+' '+t.p),e.notes||''].join(' ').toLowerCase();
+        const hay = MODE==='test'
+          ? [e.name,e.sub,e.neta,...e.vm,...e.tests.map(t=>t.n+' '+t.p),e.notes||''].join(' ').toLowerCase()
+          : [e.name,e.sub,...e.items.map(t=>t.n+' '+t.why+' '+t.fix)].join(' ').toLowerCase();
         if(!hay.includes(term)) continue;
       }
+      const tag = MODE==='test'?e.neta:(e.items.length+' pitfalls');
       rows+=`<button class="row" data-id="${id}">
         <span class="name">${hl(e.name,term)}<small>${hl(e.sub,term)}</small></span>
-        <span class="tag">${e.neta}</span>
+        <span class="tag">${tag}</span>
         <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
       </button>`;
     }
     if(rows){any=true;html+=`<div class="group"><div class="group-label">${g.label}</div>${rows}</div>`;}
   }
   home.innerHTML = any?html:'<div class="no-results">No matches. Try a test name (e.g., "TTR", "VLF", "primary injection") or equipment type.</div>';
+}
+
+function showTsDetail(id){
+  currentId='ts-'+id;
+  const e=TS[id];
+  let h=`<div class="nameplate"><div class="np-flex"><div class="np-text"><h2>${esc(e.name)}</h2>
+    <div class="refline">${esc(e.sub)}</div></div></div></div>`;
+  h+=`<div class="sec"><h3>Common Pitfalls</h3>${e.items.map(t=>`<div class="pit"><h4>${esc(t.n)}</h4><span class="lbl">WHY IT HAPPENS</span><p>${esc(t.why)}</p><span class="lbl">WHAT TO DO</span><p>${esc(t.fix)}</p></div>`).join('')}</div>`;
+  detailBody.innerHTML=h;
+  home.classList.add('hidden');
+  searchWrap.classList.add('hidden');
+  document.getElementById('tabs').classList.add('hidden');
+  detail.style.display='block';
+  detail.classList.add('show');
+  window.scrollTo(0,0);
+  try{history.pushState({id:'ts-'+id},'', '#ts-'+id);}catch(_){/* sandboxed preview */}
 }
 
 let currentId=null;
@@ -789,6 +930,7 @@ function showDetail(id){
   detailBody.innerHTML=h;
   home.classList.add('hidden');
   searchWrap.classList.add('hidden');
+  document.getElementById('tabs').classList.add('hidden');
   detail.style.display='block';
   detail.classList.add('show');
   window.scrollTo(0,0);
@@ -800,15 +942,26 @@ function showHome(){
   detail.classList.remove('show');
   home.classList.remove('hidden');
   searchWrap.classList.remove('hidden');
+  document.getElementById('tabs').classList.remove('hidden');
 }
 
 home.addEventListener('click',ev=>{
   const b=ev.target.closest('.row');
-  if(b) showDetail(b.dataset.id);
+  if(b){ MODE==='test'?showDetail(b.dataset.id):showTsDetail(b.dataset.id); }
+});
+document.getElementById('tabs').addEventListener('click',ev=>{
+  const t=ev.target.closest('.tab'); if(!t||t.dataset.mode===MODE) return;
+  MODE=t.dataset.mode;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.mode===MODE));
+  q.placeholder = MODE==='test'?'Search equipment, tests, procedures…':'Search instruments, symptoms, fixes…';
+  renderHome(q.value);
 });
 document.getElementById('backBtn').addEventListener('click',()=>{try{history.back();}catch(_){ } setTimeout(()=>{if(detail.style.display==='block')showHome();},60);});
 window.addEventListener('popstate',ev=>{
-  if(ev.state&&ev.state.id&&EQ[ev.state.id]) showDetail(ev.state.id); else showHome();
+  const sid=ev.state&&ev.state.id;
+  if(sid&&sid.startsWith('ts-')&&TS[sid.slice(3)]) showTsDetail(sid.slice(3));
+  else if(sid&&EQ[sid]) showDetail(sid);
+  else showHome();
 });
 q.addEventListener('input',()=>renderHome(q.value));
 
@@ -924,7 +1077,11 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
 });
 
 renderHome('');
-if(location.hash){const id=location.hash.slice(1);if(EQ[id])showDetail(id);}
+if(location.hash){
+  const id=location.hash.slice(1);
+  if(id.startsWith('ts-')&&TS[id.slice(3)]) showTsDetail(id.slice(3));
+  else if(EQ[id]) showDetail(id);
+}
 
 try{if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(_){/* sandboxed preview */}
 </script>
