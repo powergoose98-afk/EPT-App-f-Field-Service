@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#00539B">
+<meta name="color-scheme" content="light dark">
 <title>Test Bench — Field Testing Reference</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -11,10 +12,21 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{
-  --eaton-blue:#00539B; --eaton-dark:#003A6D; --bg:#F4F6F8; --card:#FFFFFF;
-  --line:#D5DBE1; --red:#C8102E; --text:#1A222C; --muted:#3F4A54;
+  color-scheme: light dark;
+  --eaton-blue:#00539B; --heading:#003A6D; --accent:#00539B;
+  --bg:#F4F6F8; --card:#FFFFFF; --line:#D5DBE1; --hover:#E8EEF4;
+  --red:#C8102E; --safety-bg:#FBEDEF; --ref-bg:#EDF3F9; --ok:#1B7A3D;
+  --text:#1A222C; --muted:#3F4A54;
   --mono:Consolas,'Courier New',monospace;
   --body:Calibri,'Segoe UI',Arial,Helvetica,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --heading:#CFE2F3; --accent:#6FB1E8;
+    --bg:#14181D; --card:#1E242B; --line:#3A434D; --hover:#2A323B;
+    --red:#E8536B; --safety-bg:#332024; --ref-bg:#1D3145; --ok:#5FCE8B;
+    --text:#E7EBEF; --muted:#A6B0BA;
+  }
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -39,9 +51,9 @@ header{position:sticky;top:0;z-index:20;background:var(--eaton-blue);color:#fff;
 /* ---------- category groups ---------- */
 main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
 .group{margin-top:22px}
-.group-label{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--eaton-blue);border-bottom:2px solid var(--eaton-blue);padding-bottom:6px;margin-bottom:2px}
+.group-label{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:2px}
 .row{display:flex;align-items:center;width:100%;text-align:left;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line);background:transparent}
-.row:active{background:#E8EEF4}
+.row:active{background:var(--hover)}
 .row .name{flex:1;font-weight:600;color:var(--text)}
 .row .name small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
 .tag{font-family:var(--mono);font-size:11.5px;color:#fff;background:var(--eaton-blue);border-radius:3px;padding:2px 7px;white-space:nowrap}
@@ -49,27 +61,37 @@ main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
 
 /* ---------- detail view ---------- */
 .detail{display:none}
-.back{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--eaton-blue);padding:14px 0 4px}
+.back{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--accent);padding:14px 0 4px}
 .nameplate{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--eaton-blue);border-radius:6px;padding:14px 16px;margin-top:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.nameplate h2{font-weight:700;font-size:22px;line-height:1.2;color:var(--eaton-dark)}
+.nameplate h2{font-weight:700;font-size:22px;line-height:1.2;color:var(--heading)}
 .nameplate .refline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
-.nameplate .refline b{color:var(--eaton-blue);font-weight:600}
+.nameplate .refline b{color:var(--accent);font-weight:600}
+.np-flex{display:flex;gap:14px;align-items:center;justify-content:space-between}
+.np-text{flex:1;min-width:0}
+.np-art{flex:none;width:104px}
+.np-art img{display:block;width:104px;height:70px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.np-art .np-svg{display:block;color:var(--accent)}
+.np-art svg{width:104px;height:70px;display:block}
+@media (max-width:360px){.np-art{width:84px}.np-art svg,.np-art img{width:84px;height:56px}}
 
-.safety{margin-top:14px;border:1px solid var(--red);border-left:6px solid var(--red);border-radius:4px;background:#FBEDEF;padding:12px 14px}
+.safety{margin-top:14px;border:1px solid var(--red);border-left:6px solid var(--red);border-radius:4px;background:var(--safety-bg);padding:12px 14px}
 .safety h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700}
 .safety ul{padding-left:18px;font-size:14.5px}
 .safety li{margin:4px 0}
 
 .sec{margin-top:20px}
-.sec>h3{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--eaton-blue);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:10px}
+.sec>h3{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:10px}
 .check{list-style:none}
-.check li{position:relative;padding:7px 0 7px 26px;font-size:15px;border-bottom:1px dotted var(--line)}
-.check li::before{content:"";position:absolute;left:2px;top:12px;width:12px;height:12px;border:1.5px solid var(--muted);border-radius:2px;background:var(--card)}
+.check li{position:relative;padding:9px 0 9px 30px;font-size:15px;border-bottom:1px dotted var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.check li::before{content:"";position:absolute;left:2px;top:11px;width:15px;height:15px;border:1.5px solid var(--muted);border-radius:3px;background:var(--card);line-height:15px;text-align:center;font-size:12px;font-weight:700}
+.check li:active{background:var(--hover)}
+.check li.done{color:var(--muted)}
+.check li.done::before{content:"\2713";background:var(--eaton-blue);border-color:var(--eaton-blue);color:#fff}
 
 .test{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.test h4{font-size:16px;font-weight:700;color:var(--eaton-dark)}
+.test h4{font-size:16px;font-weight:700;color:var(--heading)}
 .test p{font-size:14.5px;color:var(--text);margin-top:5px}
-.test .ref{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--eaton-blue);border:1px solid var(--eaton-blue);border-radius:3px;padding:1px 7px;margin-top:8px;background:#EDF3F9}
+.test .ref{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:1px 7px;margin-top:8px;background:var(--ref-bg)}
 
 .notes{margin-top:6px;font-size:14.5px;color:var(--muted)}
 .notes b{color:var(--text)}
@@ -81,9 +103,28 @@ main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
 /* ---------- footer disclaimer ---------- */
 .disclaimer{margin-top:34px;border-top:1px solid var(--line);padding-top:12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
 
+.hdr-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.gear{color:#fff;padding:4px;opacity:.95;flex:none;margin-top:2px}
+.gear:active{opacity:.7}
+.satsu-panel{position:fixed;inset:0;background:rgba(20,30,40,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:70px 16px 16px}
+.sp-card{background:var(--card);border-radius:8px;max-width:440px;width:100%;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.sp-card h3{color:var(--heading);font-size:17px;margin-bottom:6px}
+.sp-status{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:8px}
+.sp-help{font-size:14px;color:var(--muted);margin-bottom:14px}
+.sp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.sp-btn{border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-size:14px;font-weight:600;background:var(--bg);color:var(--text)}
+.sp-btn.primary{background:var(--eaton-blue);border-color:var(--eaton-blue);color:#fff}
+.sp-btn.danger{color:var(--red);border-color:var(--red);background:var(--card)}
+.sp-btn.ghost{width:100%;margin-top:4px;background:none;border:none;color:var(--accent)}
+.sp-note{font-size:13px;color:var(--muted);min-height:18px}
+.sp-note.ok{color:var(--ok)}
+.sp-note.err{color:var(--red)}
+.satsu-src{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px}
+.reset-checks{display:block;margin:16px auto 0;font-size:13px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 16px;background:var(--card)}
+.reset-checks:active{background:var(--hover)}
 .hidden{display:none!important}
 .no-results{padding:30px 0;text-align:center;color:var(--muted);font-size:14.5px}
-mark{background:#FFE68A;color:var(--text);border-radius:2px;padding:0 2px}
+mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
 @media (prefers-reduced-motion: no-preference){
   .detail.show{animation:slide .18s ease-out}
   @keyframes slide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -93,9 +134,32 @@ mark{background:#FFE68A;color:var(--text);border-radius:2px;padding:0 2px}
 <body>
 
 <header>
-  <div class="brand"><h1>Test Bench</h1><span class="rev">REV 1.0 · FIELD REF</span></div>
-  <div class="tagline">ACCEPTANCE &amp; MAINTENANCE TESTING · PER NETA ATS/MTS + SATSU</div>
+  <div class="hdr-row">
+    <div>
+      <div class="brand"><h1>Test Bench</h1><span class="rev">REV 1.1 · FIELD REF</span></div>
+      <div class="tagline">ACCEPTANCE &amp; MAINTENANCE TESTING · PER NETA ATS/MTS + SATSU</div>
+    </div>
+    <button class="gear" id="gearBtn" aria-label="SATSU content settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
 </header>
+
+<div id="satsuPanel" class="satsu-panel hidden">
+  <div class="sp-card">
+    <h3>SATSU Content</h3>
+    <p class="sp-status" id="spStatus"></p>
+    <p class="sp-help">Import the Eaton SATSU content file (.json) provided by your team. Content is stored only on this device and appears in each equipment page's SATSU section.</p>
+    <input type="file" id="satsuFile" accept=".json,application/json" class="hidden">
+    <div class="sp-actions">
+      <button class="sp-btn primary" id="importBtn">Import SATSU file</button>
+      <button class="sp-btn" id="exportBtn">Export</button>
+      <button class="sp-btn danger" id="clearBtn">Remove content</button>
+    </div>
+    <p class="sp-note" id="spMsg"></p>
+    <button class="sp-btn ghost" id="closePanel">Close</button>
+  </div>
+</div>
 
 <div class="search-wrap" id="searchWrap">
   <div class="search">
@@ -126,27 +190,26 @@ mark{background:#FFE68A;color:var(--text);border-radius:2px;padding:0 2px}
    NETA refs point to the applicable ATS section; verify values against
    your licensed edition.
 
-   ── INSTRUCTIONS FOR ADDING SATSU CONTENT (for AI assistants/Copilot) ──
-   Each equipment entry below may include an OPTIONAL field:
+   ── SATSU CONTENT (for AI assistants / Copilot) ──
+   Do NOT edit this file to add SATSU content. Instead, generate a JSON
+   file matching this schema, which users import via the app's
+   "SATSU Content" panel (stored in device localStorage):
 
-     satsu: [
-       "Requirement text as a plain string",
-       "One requirement per string",
-       "Include hold points, PPE requirements, and documentation requirements"
-     ],
+   {
+     "version": "1.0",
+     "updated": "YYYY-MM-DD",
+     "satsu": {
+       "<equipmentId>": ["Requirement text, one per string", "..."]
+     }
+   }
 
-   Rules:
-   1. Add the satsu array inside the relevant equipment object, after
-      the "notes" field. Do not modify any other field.
-   2. Strings must be plain text (no HTML). Escape any double quotes.
-   3. Do NOT restructure, reformat, or rewrite any other part of this
-      file. Only insert satsu arrays into existing EQ entries.
-   4. Equipment IDs: lvswgr, mvswgr, bus, mccb, lvpcb, mvvac, drytx,
-      liqtx, itx, lvcable, mvcable, airsw, mcc, acmotor, asd, relay,
-      gfp, meter, battery, arrester, cap, grounding, ats
-   5. If a SATSU requirement doesn't map to a listed equipment type,
-      add it to the closest match rather than creating a new entry.
-   Entries without a satsu array automatically show a "pending" notice.
+   Valid equipment IDs: lvswgr, mvswgr, bus, mccb, lvpcb, mvvac, drytx,
+   liqtx, itx, lvcable, mvcable, airsw, mcc, acmotor, asd, relay, gfp,
+   meter, battery, arrester, cap, grounding, ats
+
+   Strings are plain text. Include hold points, PPE requirements, and
+   documentation requirements. Map each SATSU requirement to the closest
+   equipment ID. See satsu-template.json in the repo for a starter file.
 ===================================================================== */
 const GROUPS = [
   {label:"Switchgear & Assemblies", items:["lvswgr","mvswgr","bus"]},
@@ -184,11 +247,7 @@ lvswgr:{
   {n:"Control Wiring & Functional", p:"Point-to-point verify control wiring against schematics; function-test interlocks, transfer schemes, and indications.", r:"ATS 7.1"},
   {n:"IR Thermographic Survey (energized, MTS)", p:"Under load, scan connections and terminations. Evaluate ΔT between similar components and over ambient.", r:"NETA MTS Table (thermography)"}
  ],
- notes:"Instrument transformer, relay, and breaker testing are separate line items — see their own sections.",
- satsu:[
-  "EXAMPLE FORMAT — replace with actual SATSU content for LV switchgear",
-  "Each requirement goes in its own string like this"
- ]
+ notes:"Instrument transformer, relay, and breaker testing are separate line items — see their own sections."
 },
 mvswgr:{
  name:"MV Metal-Clad Switchgear", sub:"Metal-clad & metal-enclosed, >1000 V", neta:"ATS 7.1",
@@ -668,6 +727,8 @@ ats:{
 }
 };
 
+const ART = {"lvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"8\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"44\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"80\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"14\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"14\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"36\" width=\"20\" height=\"12\"/><line x1=\"8\" y1=\"62\" x2=\"112\" y2=\"62\"/></svg>", "mvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"16\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"64\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"22\" y=\"14\" width=\"28\" height=\"16\"/><rect x=\"70\" y=\"14\" width=\"28\" height=\"16\"/><circle cx=\"36\" cy=\"50\" r=\"6\"/><circle cx=\"84\" cy=\"50\" r=\"6\"/><line x1=\"16\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "bus": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"30\" width=\"108\" height=\"20\"/><line x1=\"34\" y1=\"24\" x2=\"34\" y2=\"56\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"56\"/><line x1=\"90\" y1=\"24\" x2=\"90\" y2=\"56\"/><line x1=\"20\" y1=\"56\" x2=\"20\" y2=\"66\"/><line x1=\"100\" y1=\"56\" x2=\"100\" y2=\"66\"/></svg>", "mccb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"38\" y=\"8\" width=\"44\" height=\"64\" rx=\"4\"/><rect x=\"52\" y=\"30\" width=\"16\" height=\"20\" rx=\"2\"/><line x1=\"60\" y1=\"34\" x2=\"60\" y2=\"40\"/><line x1=\"44\" y1=\"16\" x2=\"76\" y2=\"16\"/><line x1=\"44\" y1=\"62\" x2=\"76\" y2=\"62\"/></svg>", "lvpcb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"80\" height=\"60\" rx=\"3\"/><circle cx=\"44\" cy=\"40\" r=\"10\"/><line x1=\"44\" y1=\"34\" x2=\"44\" y2=\"46\"/><rect x=\"64\" y=\"24\" width=\"26\" height=\"10\"/><rect x=\"64\" y=\"42\" width=\"26\" height=\"14\"/><line x1=\"28\" y1=\"62\" x2=\"36\" y2=\"62\"/><line x1=\"84\" y1=\"62\" x2=\"92\" y2=\"62\"/></svg>", "mvvac": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"54\" width=\"100\" height=\"16\"/><rect x=\"20\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"52\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"84\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><line x1=\"28\" y1=\"8\" x2=\"28\" y2=\"14\"/><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"14\"/><line x1=\"92\" y1=\"8\" x2=\"92\" y2=\"14\"/></svg>", "drytx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"10\" width=\"92\" height=\"60\"/><circle cx=\"38\" cy=\"40\" r=\"13\"/><circle cx=\"60\" cy=\"40\" r=\"13\"/><circle cx=\"82\" cy=\"40\" r=\"13\"/><line x1=\"20\" y1=\"16\" x2=\"30\" y2=\"16\"/><line x1=\"34\" y1=\"16\" x2=\"44\" y2=\"16\"/><line x1=\"48\" y1=\"16\" x2=\"58\" y2=\"16\"/></svg>", "liqtx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"22\" width=\"60\" height=\"48\" rx=\"3\"/><line x1=\"18\" y1=\"28\" x2=\"18\" y2=\"64\"/><line x1=\"24\" y1=\"26\" x2=\"24\" y2=\"66\"/><line x1=\"96\" y1=\"26\" x2=\"96\" y2=\"66\"/><line x1=\"102\" y1=\"28\" x2=\"102\" y2=\"64\"/><line x1=\"42\" y1=\"22\" x2=\"42\" y2=\"10\"/><line x1=\"60\" y1=\"22\" x2=\"60\" y2=\"10\"/><line x1=\"78\" y1=\"22\" x2=\"78\" y2=\"10\"/><circle cx=\"42\" cy=\"8\" r=\"2.5\"/><circle cx=\"60\" cy=\"8\" r=\"2.5\"/><circle cx=\"78\" cy=\"8\" r=\"2.5\"/></svg>", "itx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"44\" cy=\"40\" r=\"24\"/><circle cx=\"44\" cy=\"40\" r=\"12\"/><line x1=\"44\" y1=\"16\" x2=\"44\" y2=\"4\"/><rect x=\"80\" y=\"26\" width=\"28\" height=\"28\"/><line x1=\"94\" y1=\"26\" x2=\"94\" y2=\"14\"/><line x1=\"88\" y1=\"54\" x2=\"88\" y2=\"64\"/><line x1=\"100\" y1=\"54\" x2=\"100\" y2=\"64\"/></svg>", "lvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 50 C 30 20, 60 66, 88 34\"/><path d=\"M8 58 C 30 28, 60 74, 88 42\"/><line x1=\"88\" y1=\"34\" x2=\"106\" y2=\"26\"/><line x1=\"88\" y1=\"42\" x2=\"106\" y2=\"40\"/><line x1=\"88\" y1=\"42\" x2=\"104\" y2=\"52\"/></svg>", "mvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"28\"/><circle cx=\"60\" cy=\"40\" r=\"19\"/><circle cx=\"60\" cy=\"40\" r=\"11\"/><circle cx=\"60\" cy=\"40\" r=\"4\" fill=\"currentColor\"/></svg>", "airsw": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"56\" r=\"4\"/><circle cx=\"88\" cy=\"56\" r=\"4\"/><line x1=\"28\" y1=\"54\" x2=\"78\" y2=\"20\"/><line x1=\"8\" y1=\"56\" x2=\"20\" y2=\"56\"/><line x1=\"92\" y1=\"56\" x2=\"112\" y2=\"56\"/><line x1=\"78\" y1=\"20\" x2=\"84\" y2=\"14\"/></svg>", "mcc": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"8\" width=\"92\" height=\"64\"/><line x1=\"45\" y1=\"8\" x2=\"45\" y2=\"72\"/><line x1=\"76\" y1=\"8\" x2=\"76\" y2=\"72\"/><line x1=\"14\" y1=\"30\" x2=\"106\" y2=\"30\"/><line x1=\"14\" y1=\"52\" x2=\"106\" y2=\"52\"/><rect x=\"22\" y=\"14\" width=\"14\" height=\"8\"/><rect x=\"53\" y=\"36\" width=\"14\" height=\"8\"/><rect x=\"84\" y=\"58\" width=\"14\" height=\"8\"/></svg>", "acmotor": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"22\" y=\"24\" width=\"58\" height=\"36\" rx=\"6\"/><line x1=\"80\" y1=\"42\" x2=\"104\" y2=\"42\"/><line x1=\"30\" y1=\"24\" x2=\"30\" y2=\"14\"/><line x1=\"46\" y1=\"24\" x2=\"46\" y2=\"14\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"14\"/><line x1=\"30\" y1=\"14\" x2=\"62\" y2=\"14\"/><line x1=\"22\" y1=\"60\" x2=\"16\" y2=\"70\"/><line x1=\"80\" y1=\"60\" x2=\"86\" y2=\"70\"/></svg>", "asd": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"8\" width=\"60\" height=\"64\" rx=\"3\"/><rect x=\"38\" y=\"16\" width=\"44\" height=\"14\"/><circle cx=\"44\" cy=\"42\" r=\"3\"/><circle cx=\"56\" cy=\"42\" r=\"3\"/><circle cx=\"68\" cy=\"42\" r=\"3\"/><line x1=\"38\" y1=\"56\" x2=\"42\" y2=\"56\"/><line x1=\"46\" y1=\"56\" x2=\"50\" y2=\"56\"/><line x1=\"54\" y1=\"56\" x2=\"58\" y2=\"56\"/><line x1=\"62\" y1=\"56\" x2=\"66\" y2=\"56\"/><line x1=\"70\" y1=\"56\" x2=\"74\" y2=\"56\"/><line x1=\"38\" y1=\"63\" x2=\"82\" y2=\"63\"/></svg>", "relay": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"24\" y=\"12\" width=\"72\" height=\"56\" rx=\"3\"/><rect x=\"32\" y=\"20\" width=\"34\" height=\"16\"/><circle cx=\"78\" cy=\"24\" r=\"3\"/><circle cx=\"88\" cy=\"24\" r=\"3\"/><circle cx=\"78\" cy=\"34\" r=\"3\"/><circle cx=\"88\" cy=\"34\" r=\"3\"/><rect x=\"32\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"46\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"60\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"74\" y=\"46\" width=\"8\" height=\"12\"/></svg>", "gfp": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"26\"/><line x1=\"50\" y1=\"6\" x2=\"50\" y2=\"74\"/><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"74\"/><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"74\"/><line x1=\"86\" y1=\"46\" x2=\"106\" y2=\"46\"/><rect x=\"100\" y=\"40\" width=\"14\" height=\"12\"/></svg>", "meter": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"28\" y=\"12\" width=\"64\" height=\"56\" rx=\"4\"/><circle cx=\"60\" cy=\"38\" r=\"18\"/><line x1=\"60\" y1=\"38\" x2=\"70\" y2=\"26\"/><line x1=\"46\" y1=\"60\" x2=\"74\" y2=\"60\"/></svg>", "battery": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"42\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"74\" y=\"26\" width=\"24\" height=\"34\"/><line x1=\"16\" y1=\"26\" x2=\"16\" y2=\"18\"/><line x1=\"28\" y1=\"26\" x2=\"28\" y2=\"18\"/><line x1=\"48\" y1=\"26\" x2=\"48\" y2=\"18\"/><line x1=\"60\" y1=\"26\" x2=\"60\" y2=\"18\"/><line x1=\"80\" y1=\"26\" x2=\"80\" y2=\"18\"/><line x1=\"92\" y1=\"26\" x2=\"92\" y2=\"18\"/><line x1=\"28\" y1=\"20\" x2=\"48\" y2=\"20\"/><line x1=\"60\" y1=\"20\" x2=\"80\" y2=\"20\"/><line x1=\"6\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "arrester": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"12\"/><path d=\"M44 16 h32 M48 24 h24 M44 32 h32 M48 40 h24 M44 48 h32 M48 56 h24\"/><line x1=\"60\" y1=\"58\" x2=\"60\" y2=\"68\"/><line x1=\"50\" y1=\"68\" x2=\"70\" y2=\"68\"/><line x1=\"54\" y1=\"72\" x2=\"66\" y2=\"72\"/><line x1=\"58\" y1=\"76\" x2=\"62\" y2=\"76\"/></svg>", "cap": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"18\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"50\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"82\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><line x1=\"28\" y1=\"20\" x2=\"28\" y2=\"10\"/><line x1=\"60\" y1=\"20\" x2=\"60\" y2=\"10\"/><line x1=\"92\" y1=\"20\" x2=\"92\" y2=\"10\"/><line x1=\"28\" y1=\"10\" x2=\"92\" y2=\"10\"/><line x1=\"12\" y1=\"66\" x2=\"108\" y2=\"66\"/></svg>", "grounding": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"40\"/><line x1=\"40\" y1=\"40\" x2=\"80\" y2=\"40\"/><line x1=\"47\" y1=\"50\" x2=\"73\" y2=\"50\"/><line x1=\"54\" y1=\"60\" x2=\"66\" y2=\"60\"/><line x1=\"16\" y1=\"70\" x2=\"104\" y2=\"70\"/><line x1=\"24\" y1=\"70\" x2=\"18\" y2=\"78\"/><line x1=\"44\" y1=\"70\" x2=\"38\" y2=\"78\"/><line x1=\"64\" y1=\"70\" x2=\"58\" y2=\"78\"/><line x1=\"84\" y1=\"70\" x2=\"78\" y2=\"78\"/></svg>", "ats": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"12\" y1=\"20\" x2=\"46\" y2=\"20\"/><line x1=\"12\" y1=\"60\" x2=\"46\" y2=\"60\"/><circle cx=\"50\" cy=\"20\" r=\"4\"/><circle cx=\"50\" cy=\"60\" r=\"4\"/><line x1=\"53\" y1=\"22\" x2=\"84\" y2=\"38\"/><circle cx=\"87\" cy=\"40\" r=\"4\"/><line x1=\"91\" y1=\"40\" x2=\"112\" y2=\"40\"/><text x=\"14\" y=\"14\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">N</text><text x=\"14\" y=\"54\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">E</text></svg>"};
+
 /* ============================ APP ============================ */
 const home = document.getElementById('home');
 const detail = document.getElementById('detail');
@@ -705,19 +766,26 @@ function renderHome(filter){
   home.innerHTML = any?html:'<div class="no-results">No matches. Try a test name (e.g., "TTR", "VLF", "primary injection") or equipment type.</div>';
 }
 
+let currentId=null;
 function showDetail(id){
+  currentId=id;
   const e=EQ[id];
-  let h=`<div class="nameplate"><h2>${esc(e.name)}</h2>
-    <div class="refline">${esc(e.sub)} &nbsp;·&nbsp; REF <b>NETA ${esc(e.neta)}</b></div></div>`;
+  let h=`<div class="nameplate"><div class="np-flex"><div class="np-text"><h2>${esc(e.name)}</h2>
+    <div class="refline">${esc(e.sub)} &nbsp;·&nbsp; REF <b>NETA ${esc(e.neta)}</b></div></div>
+    <div class="np-art"><img src="images/${id}.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" onload="this.nextElementSibling.style.display='none'"><div class="np-svg">${ART[id]||''}</div></div></div></div>`;
   h+=`<div class="safety"><h3>⚠ Safety — Before You Start</h3><ul>${e.safety.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`;
-  h+=`<div class="sec"><h3>Visual &amp; Mechanical Inspection</h3><ul class="check">${e.vm.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>`;
+  h+=`<div class="sec"><h3>Visual &amp; Mechanical Inspection</h3><ul class="check" data-list="vm">${e.vm.map((v,i)=>`<li data-idx="${i}"${isChecked(id,'vm',i)?' class="done"':''}>${esc(v)}</li>`).join('')}</ul></div>`;
   h+=`<div class="sec"><h3>Electrical Tests</h3>${e.tests.map(t=>`<div class="test"><h4>${esc(t.n)}</h4><p>${esc(t.p)}</p><span class="ref">${esc(t.r)}</span></div>`).join('')}</div>`;
   if(e.notes) h+=`<div class="sec"><h3>Field Notes</h3><p class="notes">${esc(e.notes)}</p></div>`;
-  if(e.satsu && e.satsu.length){
-    h+=`<div class="sec"><h3>SATSU Requirements</h3><ul class="check">${e.satsu.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`;
+  const sat = (SATSU.data && SATSU.data.satsu && SATSU.data.satsu[id]) || e.satsu;
+  if(sat && sat.length){
+    h+=`<div class="sec"><h3>SATSU Requirements</h3><ul class="check" data-list="satsu">${sat.map((s,i)=>`<li data-idx="${i}"${isChecked(id,'satsu',i)?' class="done"':''}>${esc(String(s))}</li>`).join('')}</ul>`;
+    if(SATSU.data) h+=`<div class="satsu-src">SATSU content v${esc(String(SATSU.data.version||'?'))} · updated ${esc(String(SATSU.data.updated||'?'))} · imported to this device</div>`;
+    h+=`</div>`;
   } else {
-    h+=`<div class="sec"><h3>SATSU Requirements</h3><div class="stub"><b>Pending company content.</b> Eaton SATSU procedures, hold points, and documentation requirements for this equipment class will appear here once loaded. Until then, follow SATSU directly for safety and documentation requirements — SATSU governs where it conflicts with this reference.</div></div>`;
+    h+=`<div class="sec"><h3>SATSU Requirements</h3><div class="stub"><b>No SATSU content loaded on this device.</b> Tap the gear icon (top right) to import your team's SATSU content file. Until then, follow SATSU directly — SATSU governs where it conflicts with this reference.</div></div>`;
   }
+  h+=`<button class="reset-checks" data-eq="${id}">Reset checklist for this equipment</button>`;
   detailBody.innerHTML=h;
   home.classList.add('hidden');
   searchWrap.classList.add('hidden');
@@ -743,6 +811,117 @@ window.addEventListener('popstate',ev=>{
   if(ev.state&&ev.state.id&&EQ[ev.state.id]) showDetail(ev.state.id); else showHome();
 });
 q.addEventListener('input',()=>renderHome(q.value));
+
+/* ---------- checklist state (per device) ---------- */
+const CHECKS = {
+  KEY:'testbench-checks',
+  load(){ try{ return JSON.parse(localStorage.getItem(this.KEY))||{}; }catch(_){ return {}; } },
+  save(o){ try{ localStorage.setItem(this.KEY, JSON.stringify(o)); }catch(_){} }
+};
+function isChecked(eq,list,i){ const o=CHECKS.load(); return !!(o[eq]&&o[eq][list]&&o[eq][list].includes(i)); }
+function toggleCheck(eq,list,i){
+  const o=CHECKS.load();
+  o[eq]=o[eq]||{}; o[eq][list]=o[eq][list]||[];
+  const at=o[eq][list].indexOf(i);
+  if(at>=0) o[eq][list].splice(at,1); else o[eq][list].push(i);
+  CHECKS.save(o);
+  return at<0;
+}
+detailBody.addEventListener('click',ev=>{
+  const li=ev.target.closest('.check li');
+  if(li){
+    const ul=li.parentElement, eq=location.hash.slice(1)||currentId;
+    const nowDone=toggleCheck(eq, ul.dataset.list, +li.dataset.idx);
+    li.classList.toggle('done', nowDone);
+    return;
+  }
+  const rb=ev.target.closest('.reset-checks');
+  if(rb){
+    if(!confirm('Clear all checks for this equipment?')) return;
+    const o=CHECKS.load(); delete o[rb.dataset.eq]; CHECKS.save(o);
+    showDetail(rb.dataset.eq);
+  }
+});
+
+/* ---------- SATSU local content store ---------- */
+const SATSU = {
+  KEY:'testbench-satsu',
+  data:null,
+  load(){ try{ const raw=localStorage.getItem(this.KEY); this.data = raw?JSON.parse(raw):null; }catch(_){ this.data=null; } },
+  save(obj){ localStorage.setItem(this.KEY, JSON.stringify(obj)); this.data=obj; },
+  clear(){ localStorage.removeItem(this.KEY); this.data=null; },
+  validate(obj){
+    if(!obj || typeof obj!=='object') return 'File is not a valid JSON object.';
+    if(!obj.satsu || typeof obj.satsu!=='object') return 'Missing "satsu" section — check the file format.';
+    const ids=Object.keys(obj.satsu);
+    if(!ids.length) return 'The "satsu" section is empty.';
+    const unknown=ids.filter(k=>!EQ[k]);
+    for(const k of ids){
+      if(!Array.isArray(obj.satsu[k])) return `Entry "${k}" must be an array of strings.`;
+    }
+    return {ok:true, count:ids.filter(k=>EQ[k]).length, unknown};
+  }
+};
+SATSU.load();
+
+const panel=document.getElementById('satsuPanel');
+const spStatus=document.getElementById('spStatus');
+const spMsg=document.getElementById('spMsg');
+const fileInput=document.getElementById('satsuFile');
+
+function refreshStatus(){
+  if(SATSU.data){
+    const n=Object.keys(SATSU.data.satsu).filter(k=>EQ[k]).length;
+    spStatus.textContent=`LOADED · v${SATSU.data.version||'?'} · ${SATSU.data.updated||'no date'} · ${n} equipment types`;
+    document.getElementById('exportBtn').style.display='';
+    document.getElementById('clearBtn').style.display='';
+  } else {
+    spStatus.textContent='NO SATSU CONTENT ON THIS DEVICE';
+    document.getElementById('exportBtn').style.display='none';
+    document.getElementById('clearBtn').style.display='none';
+  }
+}
+function msg(t,cls){ spMsg.textContent=t; spMsg.className='sp-note '+(cls||''); }
+
+document.getElementById('gearBtn').addEventListener('click',()=>{ refreshStatus(); msg(''); panel.classList.remove('hidden'); });
+document.getElementById('closePanel').addEventListener('click',()=>panel.classList.add('hidden'));
+panel.addEventListener('click',ev=>{ if(ev.target===panel) panel.classList.add('hidden'); });
+
+document.getElementById('importBtn').addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',()=>{
+  const f=fileInput.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const obj=JSON.parse(r.result);
+      const v=SATSU.validate(obj);
+      if(v!==Object(v)){ msg(v,'err'); return; }
+      SATSU.save(obj);
+      refreshStatus();
+      let m=`Imported — SATSU content loaded for ${v.count} equipment types.`;
+      if(v.unknown.length) m+=` Ignored unknown IDs: ${v.unknown.join(', ')}.`;
+      msg(m,'ok');
+    }catch(err){ msg('Could not read file: not valid JSON.','err'); }
+    fileInput.value='';
+  };
+  r.onerror=()=>msg('Could not read file.','err');
+  r.readAsText(f);
+});
+
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  if(!SATSU.data) return;
+  const blob=new Blob([JSON.stringify(SATSU.data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='satsu-content.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+});
+
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  if(!confirm('Remove SATSU content from this device?')) return;
+  SATSU.clear(); refreshStatus(); msg('SATSU content removed from this device.','ok');
+});
 
 renderHome('');
 if(location.hash){const id=location.hash.slice(1);if(EQ[id])showDetail(id);}

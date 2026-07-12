@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-12",
+  "satsu": {
+    "lvswgr": ["Replace with SATSU requirements for LV switchgear, one per string"],
+    "mvswgr": [],
+    "bus": [],
+    "mccb": [],
+    "lvpcb": [],
+    "mvvac": [],
+    "drytx": [],
+    "liqtx": [],
+    "itx": [],
+    "lvcable": [],
+    "mvcable": [],
+    "airsw": [],
+    "mcc": [],
+    "acmotor": [],
+    "asd": [],
+    "relay": [],
+    "gfp": [],
+    "meter": [],
+    "battery": [],
+    "arrester": [],
+    "cap": [],
+    "grounding": [],
+    "ats": []
+  }
+}
