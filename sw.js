@@ -1,4 +1,4 @@
-const CACHE = 'test-bench-v8';
+const CACHE = 'test-bench-v10';
 const CORE = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/maskable-512.png'];
 
 self.addEventListener('install', e => {
@@ -12,20 +12,16 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Cache-first for everything, with runtime caching for fonts (gstatic/googleapis)
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(hit => {
-      if (hit) return hit;
-      return fetch(e.request).then(res => {
-        const url = e.request.url;
-        if (res.ok && (url.startsWith(self.location.origin) || url.includes('fonts.gstatic.com') || url.includes('fonts.googleapis.com'))) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+      const url = e.request.url;
+      if (res.ok && url.startsWith(self.location.origin)) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+      }
+      return res;
+    }).catch(() => caches.match('./index.html')))
   );
 });

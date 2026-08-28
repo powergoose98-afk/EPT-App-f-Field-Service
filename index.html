@@ -133,6 +133,18 @@ main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
 .sp-note.ok{color:var(--ok)}
 .sp-note.err{color:var(--red)}
 .satsu-src{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px}
+.sp-hr{border:none;border-top:1px solid var(--line);margin:14px 0}
+.sp-btn.wide{width:100%;margin-bottom:8px}
+.refs-card{max-width:560px}
+.ref-group{margin-bottom:18px}
+.ref-group h4{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px}
+.ref-item{padding:7px 0;border-bottom:1px dotted var(--line);font-size:14px}
+.ref-item:last-child{border-bottom:none}
+.ref-item .ref-id{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--heading)}
+.ref-item .ref-name{color:var(--text);display:block;margin-top:2px}
+.ref-item a.ref-id{color:var(--accent);text-decoration:none}
+.ref-item a.ref-id:active{text-decoration:underline}
+.ref-item .ext{font-size:11px;color:var(--muted);margin-left:4px}
 .reset-checks{display:block;margin:16px auto 0;font-size:13px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 16px;background:var(--card)}
 .reset-checks:active{background:var(--hover)}
 .hidden{display:none!important}
@@ -170,7 +182,18 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
       <button class="sp-btn danger" id="clearBtn">Remove content</button>
     </div>
     <p class="sp-note" id="spMsg"></p>
+    <hr class="sp-hr">
+    <button class="sp-btn wide" id="refsBtn">View Standards &amp; References</button>
     <button class="sp-btn ghost" id="closePanel">Close</button>
+  </div>
+</div>
+
+<div id="refsPanel" class="satsu-panel hidden">
+  <div class="sp-card refs-card">
+    <h3>Standards &amp; References</h3>
+    <p class="sp-help">Documents this reference draws on. Links open official or publicly accessible pages where available; standards behind a paywall link to the publisher's page. Always verify against the current edition and your licensed copy.</p>
+    <div id="refsList"></div>
+    <button class="sp-btn ghost" id="closeRefs">Close</button>
   </div>
 </div>
 
@@ -198,7 +221,7 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
   </div>
 
   <div class="disclaimer">
-    REFERENCE AID ONLY. Procedures summarize common industry practice. Acceptance criteria, test values, and table data MUST be verified against your licensed copy of the current NETA ATS/MTS edition, the manufacturer's instruction book, and Eaton SATSU requirements. Section/table numbers may shift between NETA editions. When documents conflict, follow SATSU and the equipment IB. This app stores no job data.
+    REFERENCE AID ONLY. Procedures summarize common industry practice. Acceptance criteria, test values, and table data MUST be verified against your licensed copy of the current NETA ATS/MTS edition, the manufacturer's instruction book, and Eaton SATSU requirements. The ATS 7.x section and Table 100.x numbers used here follow the older ATS structure; NETA renumbered content in ATS-2021, and ATS-2025 now supersedes it — treat every reference number as approximate and confirm against your edition. When documents conflict, follow SATSU and the equipment IB. This app stores no job data.
   </div>
 </main>
 
@@ -472,7 +495,7 @@ lvcable:{
   "Confirm cable identification and phasing tags both ends"
  ],
  tests:[
-  {n:"Insulation Resistance", p:"Each conductor to ground/other conductors, 1 minute at 1000 Vdc (typ. 600 V class). Compare conductors of same feeder.", r:"NETA Table 100.1"},
+  {n:"Insulation Resistance", p:"Each conductor to ground/other conductors, 1 minute at 500–1000 Vdc (600 V class). Disconnect the cable from any connected electronics first — a feeder can land on a drive, soft-starter, or PLC I/O that the test voltage will damage. Compare conductors of the same feeder.", r:"NETA Table 100.1"},
   {n:"Continuity & Phasing", p:"Verify point-to-point continuity and phase identity end to end.", r:"ATS 7.3.1"}
  ],
  notes:"LV cable rarely needs more than IR + continuity — don't over-test. Low IR? Check terminations and moisture in boxes before condemning the run."
@@ -558,7 +581,7 @@ acmotor:{
   "Inspect terminal box connections, lead insulation condition"
  ],
  tests:[
-  {n:"Insulation Resistance + PI", p:"Winding to ground at voltage per machine rating, 1 and 10 min for PI (PI typically ≥2.0 for class B and above). Temperature-correct — IR halves roughly every 10°C rise.", r:"NETA Table 100.1 / IEEE 43"},
+  {n:"Insulation Resistance + PI", p:"Winding to ground at voltage per machine rating, 1 and 10 min for PI (min. 2.0 for Class B/F per IEEE 43-2013). Correct to 40°C. Exception: when the 1-minute IR exceeds 5000 MΩ, PI may not be meaningful and can be disregarded — a good modern winding can show a low PI, so do not condemn on PI alone.", r:"NETA Table 100.1 / IEEE 43"},
   {n:"Winding Resistance", p:"Phase-to-phase comparison; imbalance indicates connection or turn problems.", r:"ATS 7.15.1"},
   {n:"Surge Comparison / Offline PD (larger machines)", p:"Where specified, surge test detects turn-to-turn weakness IR can't see.", r:"ATS optional / IEEE 522"},
   {n:"Polarization / HiPot (acceptance, where specified)", p:"DC or AC withstand per machine class after acceptable IR/PI.", r:"ATS 7.15.1"},
@@ -660,7 +683,7 @@ battery:{
  ],
  tests:[
   {n:"Float Voltage Survey", p:"Individual cell/unit float voltages; compare to OEM spec and flag outliers.", r:"ATS 7.18.1 / IEEE 450 (VLA) · 1188 (VRLA) · 1106 (NiCd)"},
-  {n:"Connection Resistance", p:"Micro-ohm each inter-cell/inter-tier connection; investigate values >20% above baseline average (per IEEE practice).", r:"ATS 7.18.1"},
+  {n:"Connection Resistance", p:"Micro-ohm each inter-cell/inter-tier connection; investigate connections that deviate from the installation baseline beyond the limit in the applicable IEEE standard (450/1188/1106). Trend against that string’s own baseline, not a generic number.", r:"ATS 7.18.1"},
   {n:"Impedance/Conductance (VRLA trending)", p:"Ohmic test each unit; trend against baseline — the primary VRLA health indicator.", r:"IEEE 1188"},
   {n:"Capacity/Discharge Test (acceptance & interval)", p:"Load-bank discharge at rated load to end voltage; capacity ≥90% typical acceptance. Modified performance tests on intervals per IEEE.", r:"IEEE 450/1188 / ATS 7.18.1"},
   {n:"Charger Verification", p:"Verify float/equalize voltages, current limit, and alarms (high/low DC, ground detection).", r:"ATS 7.18.2"},
@@ -687,7 +710,7 @@ arrester:{
 cap:{
  name:"Capacitors & Reactors", sub:"PF correction banks, filter/reactor sets", neta:"ATS 7.20",
  safety:[
-  "Wait the full discharge time (internal resistors: 5 min typical LV, verify OEM), then manually short/ground EVERY unit before touching — internal resistors fail.",
+  "Wait the full discharge time — NEC 460.6 requires ≤50 V within 1 min for ≤600 V units and within 5 min above 600 V — then manually short/ground EVERY unit before touching, since internal discharge resistors fail.",
   "A capacitor with a bulged case is a projectile — do not approach energized."
  ],
  vm:[
@@ -716,7 +739,7 @@ grounding:{
   "Verify fence, gate, and gradient control bonding at substations"
  ],
  tests:[
-  {n:"Fall-of-Potential (3-point)", p:"Electrode resistance with current probe far enough for the flat curve region (rule of thumb: probe at ~62% of distance, distance ≥5–10x grid diagonal). Compare to design value.", r:"ATS 7.13 / IEEE 81"},
+  {n:"Fall-of-Potential (3-point)", p:"Drive the current probe well clear of the grid (≥5–10x the grid diagonal) and plot potential-probe readings across the span; take the flat region of the curve as the electrode resistance. The 62% rule is only valid for a simple single rod — on a large grid the potential never truly flattens and 62% reads low. Compare to the design value.", r:"ATS 7.13 / IEEE 81"},
   {n:"Clamp-On Ground Test", p:"Quick multi-grounded-system check where a return path exists — not valid for isolated single electrodes.", r:"IEEE 81"},
   {n:"Point-to-Point Continuity", p:"DLRO between the grid and equipment grounds — verifies bonding integrity across the system (typically fractions of an ohm).", r:"ATS 7.13"},
   {n:"Soil Resistivity (design/where specified)", p:"Wenner 4-point method for design verification.", r:"IEEE 81"}
@@ -850,14 +873,68 @@ dmm:{ name:"Multimeters & General", sub:"Everyday instrument traps",
  ]}
 };
 
+
+/* ============================ STANDARDS & REFERENCES ============================
+   Grouped by publishing body. `url` links to an official or publicly accessible
+   page; omit `url` for documents with no stable public link. Edition years reflect
+   what was current at build time — verify against the latest published edition. */
+const REFS = [
+ { group:"NETA — InterNational Electrical Testing Association", items:[
+   { id:"ANSI/NETA ATS", name:"Standard for Acceptance Testing Specifications for Electrical Power Equipment & Systems (2025 ed. supersedes 2021). Source of the ATS 7.x procedure and Table 100.x references throughout this app.", url:"https://www.netaworld.org/standards/ansi-neta-ats" },
+   { id:"ANSI/NETA MTS", name:"Standard for Maintenance Testing Specifications for Electrical Power Equipment & Systems. Basis for the maintenance-testing (MTS) items such as thermography and interval discharge tests.", url:"https://www.netaworld.org/standards/ansi-neta-mts" },
+   { id:"ANSI/NETA ETT", name:"Standard for Certification of Electrical Testing Technicians.", url:"https://www.netaworld.org/standards/ansi-neta-ett" }
+ ]},
+ { group:"IEEE Standards", items:[
+   { id:"IEEE 43", name:"Recommended Practice for Testing Insulation Resistance of Electric Machinery (PI, IR minimums, 40°C correction, the >5000 MΩ PI exception).", url:"https://standards.ieee.org/ieee/43/4791/" },
+   { id:"IEEE 81", name:"Guide for Measuring Earth Resistivity, Ground Impedance, and Earth Surface Potentials of a Grounding System (fall-of-potential, Wenner method).", url:"https://standards.ieee.org/ieee/81/4784/" },
+   { id:"IEEE 400.2", name:"Guide for Field Testing of Shielded Power Cable Systems Using Very Low Frequency (VLF) (VLF withstand levels, tan delta).", url:"https://standards.ieee.org/ieee/400.2/6790/" },
+   { id:"IEEE 450", name:"Recommended Practice for Maintenance, Testing, and Replacement of Vented Lead-Acid (VLA) Batteries.", url:"https://standards.ieee.org/ieee/450/5575/" },
+   { id:"IEEE 1188", name:"Recommended Practice for Maintenance, Testing, and Replacement of Valve-Regulated Lead-Acid (VRLA) Batteries.", url:"https://standards.ieee.org/ieee/1188/5147/" },
+   { id:"IEEE 1106", name:"Recommended Practice for Installation, Maintenance, Testing, and Replacement of Vented Nickel-Cadmium Batteries.", url:"https://standards.ieee.org/ieee/1106/5560/" },
+   { id:"IEEE C57.12.91", name:"Standard Test Code for Dry-Type Distribution and Power Transformers (applied/induced potential test methods).", url:"https://standards.ieee.org/ieee/C57.12.91/10490/" },
+   { id:"IEEE C57.13", name:"Standard Requirements for Instrument Transformers (CT/VT ratio, polarity, accuracy class, excitation).", url:"https://standards.ieee.org/ieee/C57.13/7286/" },
+   { id:"IEEE C57.104", name:"Guide for the Interpretation of Gases Generated in Mineral Oil-Immersed Transformers (DGA).", url:"https://standards.ieee.org/ieee/C57.104/7452/" },
+   { id:"IEEE C57.149", name:"Guide for the Application and Interpretation of Frequency Response Analysis (SFRA) for Oil-Immersed Transformers.", url:"https://standards.ieee.org/ieee/C57.149/5478/" },
+   { id:"IEEE 519", name:"Standard for Harmonic Control in Electric Power Systems (THD/TDD limits at the PCC for drives).", url:"https://standards.ieee.org/ieee/519/5920/" },
+   { id:"IEEE 522", name:"Guide for Testing Turn Insulation of Form-Wound Coils for Alternating-Current Machines (surge comparison).", url:"https://standards.ieee.org/ieee/522/6786/" }
+ ]},
+ { group:"NEMA / ANSI Equipment Standards", items:[
+   { id:"ANSI C37.20.1", name:"Metal-Enclosed Low-Voltage (1000 Vac and below) Power Circuit Breaker Switchgear (bus withstand levels).", url:"https://www.nema.org/standards/view/american-national-standard-for-metal-enclosed-low-voltage-power-circuit-breaker-switchgear" },
+   { id:"ANSI C37.20.2", name:"Metal-Clad Switchgear (MV bus dielectric withstand).", url:"https://www.nema.org/standards/view/american-national-standard-for-metal-clad-switchgear" },
+   { id:"NEMA AB 4", name:"Guidelines for Inspection and Preventive Maintenance of Molded-Case Circuit Breakers Used in Commercial and Industrial Applications.", url:"https://www.nema.org/standards/view/guidelines-for-inspection-and-preventive-maintenance-of-molded-case-circuit-breakers-used-in-commercial-and-industrial-applications" }
+ ]},
+ { group:"NFPA / Code References", items:[
+   { id:"NFPA 70 (NEC)", name:"National Electrical Code — Art. 230.95 (LV ground-fault protection), Art. 250 (bonding/grounding), Art. 460.6 (capacitor discharge times), Art. 490 (MV).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70" },
+   { id:"NFPA 70B", name:"Standard for Electrical Equipment Maintenance (now a standard, not a recommended practice).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70b-standard-development/70b" },
+   { id:"NFPA 70E", name:"Standard for Electrical Safety in the Workplace (arc flash, approach boundaries, the 50 Vac safe-voltage threshold).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70e-standard-development/70e" },
+   { id:"NFPA 110", name:"Standard for Emergency and Standby Power Systems (EPSS transfer/test documentation for ATS).", url:"https://www.nfpa.org/codes-and-standards/nfpa-110-standard-development/110" }
+ ]},
+ { group:"OSHA — 29 CFR", items:[
+   { id:"29 CFR 1910.147", name:"The Control of Hazardous Energy (Lockout/Tagout).", url:"https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147" },
+   { id:"29 CFR 1910.269", name:"Electric Power Generation, Transmission, and Distribution (field work practices, MV switching).", url:"https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.269" },
+   { id:"29 CFR 1910 Subpart S", name:"Electrical (design safety standards and safety-related work practices, 1910.301–.399).", url:"https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910SubpartS" }
+ ]},
+ { group:"Eaton Product Literature", items:[
+   { id:"Eaton IBs", name:"Instruction Books / Instruction Leaflets (IB/IL) for the specific equipment under test — Magnum, Power Defense, VacClad-W, AMPGARD, PXR trip units, etc. The equipment IB governs test voltages, torque, and contact-erosion limits. Access via Eaton's documentation portal by catalog/style number.", url:"https://www.eaton.com/us/en-us/company/news-insights/lit-resources.html" },
+   { id:"PXPM / PXG", name:"Eaton Power Xpert software for trip-unit configuration, event retrieval, and clearing standing alarms after testing. Refer to the tool's own documentation.", url:"https://www.eaton.com/us/en-us/products/electrical-circuit-protection/trip-units.html" }
+ ]}
+];
+
 /* ============================ APP ============================ */
+
+// Cached DOM references
 const home = document.getElementById('home');
 const detail = document.getElementById('detail');
 const detailBody = document.getElementById('detailBody');
 const searchWrap = document.getElementById('searchWrap');
+const tabs = document.getElementById('tabs');
 const q = document.getElementById('q');
 
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+// UI state
+let MODE = 'test';          // 'test' | 'ts' — which tab is active
+let currentId = null;       // id of the equipment/instrument currently open in detail view
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function hl(s,term){
   if(!term) return esc(s);
   const i = s.toLowerCase().indexOf(term.toLowerCase());
@@ -865,7 +942,15 @@ function hl(s,term){
   return esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+term.length))+'</mark>'+esc(s.slice(i+term.length));
 }
 
-let MODE='test';
+// Builds the equipment/instrument title card. `artHtml` is optional (equipment pages
+// show an illustration or photo; troubleshooting pages don't).
+function nameplate(name, reflineHtml, artHtml){
+  return `<div class="nameplate"><div class="np-flex">`
+       + `<div class="np-text"><h2>${esc(name)}</h2><div class="refline">${reflineHtml}</div></div>`
+       + (artHtml || '')
+       + `</div></div>`;
+}
+
 function renderHome(filter){
   const term=(filter||'').trim().toLowerCase();
   const groups = MODE==='test'?GROUPS:TSGROUPS;
@@ -896,34 +981,32 @@ function renderHome(filter){
 function showTsDetail(id){
   currentId='ts-'+id;
   const e=TS[id];
-  let h=`<div class="nameplate"><div class="np-flex"><div class="np-text"><h2>${esc(e.name)}</h2>
-    <div class="refline">${esc(e.sub)}</div></div></div></div>`;
+  let h = nameplate(e.name, esc(e.sub));
   h+=`<div class="sec"><h3>Common Pitfalls</h3>${e.items.map(t=>`<div class="pit"><h4>${esc(t.n)}</h4><span class="lbl">WHY IT HAPPENS</span><p>${esc(t.why)}</p><span class="lbl">WHAT TO DO</span><p>${esc(t.fix)}</p></div>`).join('')}</div>`;
   detailBody.innerHTML=h;
   home.classList.add('hidden');
   searchWrap.classList.add('hidden');
-  document.getElementById('tabs').classList.add('hidden');
+  tabs.classList.add('hidden');
   detail.style.display='block';
   detail.classList.add('show');
   window.scrollTo(0,0);
   try{history.pushState({id:'ts-'+id},'', '#ts-'+id);}catch(_){/* sandboxed preview */}
 }
 
-let currentId=null;
 function showDetail(id){
   currentId=id;
   const e=EQ[id];
-  let h=`<div class="nameplate"><div class="np-flex"><div class="np-text"><h2>${esc(e.name)}</h2>
-    <div class="refline">${esc(e.sub)} &nbsp;·&nbsp; REF <b>NETA ${esc(e.neta)}</b></div></div>
-    <div class="np-art"><img src="images/${id}.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" onload="this.nextElementSibling.style.display='none'"><div class="np-svg">${ART[id]||''}</div></div></div></div>`;
+  const refline = `${esc(e.sub)} &nbsp;·&nbsp; REF <b>NETA ${esc(e.neta)}</b>`;
+  const art = `<div class="np-art"><img src="images/${id}.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" onload="this.nextElementSibling.style.display='none'"><div class="np-svg">${ART[id]||''}</div></div>`;
+  let h = nameplate(e.name, refline, art);
   h+=`<div class="safety"><h3>⚠ Safety — Before You Start</h3><ul>${e.safety.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>`;
   h+=`<div class="sec"><h3>Visual &amp; Mechanical Inspection</h3><ul class="check" data-list="vm">${e.vm.map((v,i)=>`<li data-idx="${i}"${isChecked(id,'vm',i)?' class="done"':''}>${esc(v)}</li>`).join('')}</ul></div>`;
   h+=`<div class="sec"><h3>Electrical Tests</h3>${e.tests.map(t=>`<div class="test"><h4>${esc(t.n)}</h4><p>${esc(t.p)}</p><span class="ref">${esc(t.r)}</span></div>`).join('')}</div>`;
   if(e.notes) h+=`<div class="sec"><h3>Field Notes</h3><p class="notes">${esc(e.notes)}</p></div>`;
   const sat = (SATSU.data && SATSU.data.satsu && SATSU.data.satsu[id]) || e.satsu;
   if(sat && sat.length){
-    h+=`<div class="sec"><h3>SATSU Requirements</h3><ul class="check" data-list="satsu">${sat.map((s,i)=>`<li data-idx="${i}"${isChecked(id,'satsu',i)?' class="done"':''}>${esc(String(s))}</li>`).join('')}</ul>`;
-    if(SATSU.data) h+=`<div class="satsu-src">SATSU content v${esc(String(SATSU.data.version||'?'))} · updated ${esc(String(SATSU.data.updated||'?'))} · imported to this device</div>`;
+    h+=`<div class="sec"><h3>SATSU Requirements</h3><ul class="check" data-list="satsu">${sat.map((s,i)=>`<li data-idx="${i}"${isChecked(id,'satsu',i)?' class="done"':''}>${esc(s)}</li>`).join('')}</ul>`;
+    if(SATSU.data) h+=`<div class="satsu-src">SATSU content v${esc(SATSU.data.version||'?')} · updated ${esc(SATSU.data.updated||'?')} · imported to this device</div>`;
     h+=`</div>`;
   } else {
     h+=`<div class="sec"><h3>SATSU Requirements</h3><div class="stub"><b>No SATSU content loaded on this device.</b> Tap the gear icon (top right) to import your team's SATSU content file. Until then, follow SATSU directly — SATSU governs where it conflicts with this reference.</div></div>`;
@@ -932,7 +1015,7 @@ function showDetail(id){
   detailBody.innerHTML=h;
   home.classList.add('hidden');
   searchWrap.classList.add('hidden');
-  document.getElementById('tabs').classList.add('hidden');
+  tabs.classList.add('hidden');
   detail.style.display='block';
   detail.classList.add('show');
   window.scrollTo(0,0);
@@ -944,14 +1027,14 @@ function showHome(){
   detail.classList.remove('show');
   home.classList.remove('hidden');
   searchWrap.classList.remove('hidden');
-  document.getElementById('tabs').classList.remove('hidden');
+  tabs.classList.remove('hidden');
 }
 
 home.addEventListener('click',ev=>{
   const b=ev.target.closest('.row');
   if(b){ MODE==='test'?showDetail(b.dataset.id):showTsDetail(b.dataset.id); }
 });
-document.getElementById('tabs').addEventListener('click',ev=>{
+tabs.addEventListener('click',ev=>{
   const t=ev.target.closest('.tab'); if(!t||t.dataset.mode===MODE) return;
   MODE=t.dataset.mode;
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.mode===MODE));
@@ -1077,6 +1160,28 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
   if(!confirm('Remove SATSU content from this device?')) return;
   SATSU.clear(); refreshStatus(); msg('SATSU content removed from this device.','ok');
 });
+
+/* ---------- Standards & references panel ---------- */
+function renderRefs(){
+  const box = document.getElementById('refsList');
+  box.innerHTML = REFS.map(group => {
+    const rows = group.items.map(r => {
+      const idCell = r.url
+        ? `<a class="ref-id" href="${r.url}" target="_blank" rel="noopener">${esc(r.id)}<span class="ext">\u2197</span></a>`
+        : `<span class="ref-id">${esc(r.id)}</span>`;
+      return `<div class="ref-item">${idCell}<span class="ref-name">${esc(r.name)}</span></div>`;
+    }).join('');
+    return `<div class="ref-group"><h4>${esc(group.group)}</h4>${rows}</div>`;
+  }).join('');
+}
+const refsPanel = document.getElementById('refsPanel');
+document.getElementById('refsBtn').addEventListener('click',()=>{
+  renderRefs();
+  panel.classList.add('hidden');      // close settings
+  refsPanel.classList.remove('hidden');
+});
+document.getElementById('closeRefs').addEventListener('click',()=>refsPanel.classList.add('hidden'));
+refsPanel.addEventListener('click',ev=>{ if(ev.target===refsPanel) refsPanel.classList.add('hidden'); });
 
 renderHome('');
 if(location.hash){
