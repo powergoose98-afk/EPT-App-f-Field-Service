@@ -13,146 +13,318 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
+/* ============================================================
+   Test Bench — field reference for electrical testing
+   Visual language: equipment data plates and test-report sheets.
+   Each mode (acceptance / maintenance / troubleshoot) carries its
+   own accent so the tab you're in is obvious from any page.
+   ============================================================ */
 :root{
   color-scheme: light dark;
-  --eaton-blue:#00539B; --heading:#003A6D; --accent:#00539B;
-  --bg:#F4F6F8; --card:#FFFFFF; --line:#D5DBE1; --hover:#E8EEF4;
-  --red:#C8102E; --safety-bg:#FBEDEF; --ref-bg:#EDF3F9; --ok:#1B7A3D;
-  --text:#1A222C; --muted:#3F4A54;
-  --mono:Consolas,'Courier New',monospace;
-  --body:Calibri,'Segoe UI',Arial,Helvetica,sans-serif;
+
+  /* brand + mode accents */
+  --brand:#00539B;              /* Eaton blue — chrome and acceptance mode */
+  --accent:#00539B;             /* swapped per mode via body[data-mode] */
+  --heading:#00325E;
+  --hazard:#C8102E;
+
+  /* surfaces */
+  --bg:#EEF1F5;
+  --card:#FFFFFF;
+  --sunken:#F6F8FA;
+  --line:#D2D9E0;
+  --line-soft:#E4E9EE;
+  --hover:#E6EDF4;
+
+  /* text */
+  --text:#141A21;
+  --muted:#4A5560;
+  --ok:#166B39;
+
+  /* type */
+  --body:Calibri,"Segoe UI",Arial,Helvetica,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+
+  /* rhythm */
+  --r:6px;
+  --shadow:0 1px 2px rgba(16,32,48,.07), 0 2px 8px rgba(16,32,48,.05);
+  --shadow-lift:0 4px 16px rgba(16,32,48,.13);
 }
+body[data-mode="mts"]{ --accent:#00707C; --heading:#004C55; }
+body[data-mode="ts"] { --accent:#A2540A; --heading:#7A3E06; }
+
 @media (prefers-color-scheme: dark){
   :root{
-    --heading:#CFE2F3; --accent:#6FB1E8;
-    --bg:#14181D; --card:#1E242B; --line:#3A434D; --hover:#2A323B;
-    --red:#E8536B; --safety-bg:#332024; --ref-bg:#1D3145; --ok:#5FCE8B;
-    --text:#E7EBEF; --muted:#A6B0BA;
+    --brand:#2E7CC4;
+    --accent:#6FB1E8; --heading:#CFE2F3; --hazard:#F0697E;
+    --bg:#10151A; --card:#1B2229; --sunken:#151B21;
+    --line:#333E48; --line-soft:#28313A; --hover:#26313B;
+    --text:#E9EDF1; --muted:#A3AEB9;
+    --ok:#5FCE8B;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+    --shadow-lift:0 4px 18px rgba(0,0,0,.5);
   }
+  body[data-mode="mts"]{ --accent:#4FC3CE; --heading:#B8E8ED; }
+  body[data-mode="ts"] { --accent:#E5A75C; --heading:#F2CE9B; }
 }
+
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;padding-bottom:env(safe-area-inset-bottom)}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--body); font-size:16px; line-height:1.5;
+  padding-bottom:env(safe-area-inset-bottom);
+  -webkit-font-smoothing:antialiased;
+}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-a{color:var(--eaton-blue)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
 
-/* ---------- header ---------- */
-header{position:sticky;top:0;z-index:20;background:var(--eaton-blue);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand h1{font-weight:700;font-size:22px;letter-spacing:.02em}
-.brand .rev{font-family:var(--mono);font-size:12px;color:#FFFFFF}
-.tagline{font-size:13px;color:#FFFFFF;margin-top:2px}
+/* ---------- header: the instrument's faceplate ---------- */
+header{
+  position:sticky; top:0; z-index:20;
+  background:var(--brand); color:#fff;
+  padding:calc(11px + env(safe-area-inset-top)) 16px 11px;
+  box-shadow:0 1px 0 rgba(0,0,0,.18), 0 2px 10px rgba(0,0,0,.10);
+}
+.hdr-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;max-width:760px;margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:9px}
+.brand h1{font-weight:700;font-size:21px;letter-spacing:.005em}
+.brand .rev{font-family:var(--mono);font-size:11px;color:#fff;opacity:.82;letter-spacing:.02em}
+.tagline{font-size:12px;color:#fff;opacity:.86;margin-top:1px;letter-spacing:.01em}
+.gear{color:#fff;padding:5px;flex:none;margin-top:1px;border-radius:5px}
+.gear:active{background:rgba(255,255,255,.16)}
 
 /* ---------- mode tabs ---------- */
-.tabs{display:flex;gap:0;margin:12px 16px 0;max-width:760px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
-.tab{flex:1;padding:10px 0;font-size:13.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center}
-.tab.active{background:var(--eaton-blue);color:#fff}
-@media(min-width:792px){.tabs{margin-left:auto;margin-right:auto}}
-.pit{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:12px 14px;margin-bottom:10px}
-.pit h4{font-size:16px;font-weight:700;color:var(--heading)}
-.pit p{font-size:14.5px;margin-top:6px}
-.pit .lbl{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--accent);display:block;margin-top:8px}
-.pit p:first-of-type{margin-top:4px}
+.tabs{
+  display:flex; gap:3px; max-width:760px; margin:13px auto 0;
+  padding:3px; background:var(--card);
+  border:1px solid var(--line); border-radius:9px; box-shadow:var(--shadow);
+}
+@media(max-width:792px){ .tabs{margin-left:16px;margin-right:16px} }
+.tab{
+  flex:1; padding:9px 2px; border-radius:6px;
+  font-size:13px; font-weight:700; letter-spacing:.03em;
+  color:var(--muted); text-align:center;
+  transition:background .15s ease, color .15s ease;
+}
+.tab.active{background:var(--accent);color:#fff}
+@media (prefers-reduced-motion: reduce){ .tab{transition:none} }
 
 /* ---------- search ---------- */
-.search-wrap{padding:12px 16px 4px}
-.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.search-wrap{padding:11px 16px 2px;max-width:792px;margin:0 auto}
+.search{
+  display:flex;align-items:center;gap:9px;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:10px 13px;box-shadow:var(--shadow);
+}
 .search svg{flex:none;color:var(--muted)}
-.search input{flex:1;background:none;border:none;color:var(--text);font:inherit;outline:none}
-.search input::placeholder{color:var(--muted)}
+.search input{flex:1;background:none;border:none;color:var(--text);font:inherit;outline:none;min-width:0}
+.search input::placeholder{color:var(--muted);opacity:.85}
 
-/* ---------- category groups ---------- */
-main{padding:8px 16px 40px;max-width:760px;margin:0 auto}
-.group{margin-top:22px}
-.group-label{font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:2px}
-.row{display:flex;align-items:center;width:100%;text-align:left;gap:12px;padding:14px 4px;border-bottom:1px solid var(--line);background:transparent}
+/* ---------- directory ---------- */
+main{padding:6px 16px 44px;max-width:760px;margin:0 auto}
+.group{margin-top:26px}
+.group-label{
+  font-weight:700;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--accent);
+  padding-bottom:7px;margin-bottom:1px;
+  border-bottom:2px solid var(--accent);
+}
+.row{
+  display:flex;align-items:center;width:100%;text-align:left;gap:12px;
+  padding:14px 6px;border-bottom:1px solid var(--line-soft);background:transparent;
+}
 .row:active{background:var(--hover)}
-.row .name{flex:1;font-weight:600;color:var(--text)}
-.row .name small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
-.tag{font-family:var(--mono);font-size:11.5px;color:#fff;background:var(--eaton-blue);border-radius:3px;padding:2px 7px;white-space:nowrap}
-.chev{color:var(--muted);flex:none}
+.row .name{flex:1;font-weight:600;min-width:0;letter-spacing:-.002em}
+.row .name small{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px;letter-spacing:0}
+.tag{
+  font-family:var(--mono);font-size:11px;color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 10%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  border-radius:4px;padding:3px 7px;white-space:nowrap;flex:none;
+}
+.chev{color:var(--muted);flex:none;opacity:.7}
 
-/* ---------- detail view ---------- */
+/* ---------- detail ---------- */
 .detail{display:none}
-.back{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:var(--accent);padding:14px 0 4px}
-.nameplate{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--eaton-blue);border-radius:6px;padding:14px 16px;margin-top:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.nameplate h2{font-weight:700;font-size:22px;line-height:1.2;color:var(--heading)}
-.nameplate .refline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
-.nameplate .refline b{color:var(--accent);font-weight:600}
+.back{
+  display:flex;align-items:center;gap:6px;
+  font-weight:700;font-size:13.5px;letter-spacing:.02em;
+  color:var(--accent);padding:15px 2px 4px;
+}
+.nameplate{
+  background:var(--card);border:1px solid var(--line);
+  border-top:4px solid var(--accent);
+  border-radius:var(--r);padding:15px 16px;margin-top:8px;box-shadow:var(--shadow);
+}
 .np-flex{display:flex;gap:14px;align-items:center;justify-content:space-between}
 .np-text{flex:1;min-width:0}
+.nameplate h2{font-weight:700;font-size:21px;line-height:1.18;color:var(--heading);letter-spacing:-.01em}
+.nameplate .refline{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:7px;letter-spacing:.01em}
+.nameplate .refline b{color:var(--accent);font-weight:600}
 .np-art{flex:none;width:104px}
 .np-art img{display:block;width:104px;height:70px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
 .np-art .np-svg{display:block;color:var(--accent)}
 .np-art svg{width:104px;height:70px;display:block}
-@media (max-width:360px){.np-art{width:84px}.np-art svg,.np-art img{width:84px;height:56px}}
+@media (max-width:360px){.np-art{width:82px}.np-art svg,.np-art img{width:82px;height:55px}}
 
-.safety{margin-top:14px;border:1px solid var(--red);border-left:6px solid var(--red);border-radius:4px;background:var(--safety-bg);padding:12px 14px}
-.safety h3{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700}
-.safety ul{padding-left:18px;font-size:14.5px}
-.safety li{margin:4px 0}
+/* ---------- SIGNATURE: safety callout as an equipment hazard label ---------- */
+.safety{
+  margin-top:15px;border:1px solid var(--hazard);border-radius:var(--r);
+  background:color-mix(in srgb, var(--hazard) 7%, var(--card));
+  overflow:hidden;
+}
+.safety::before{
+  content:"";display:block;height:7px;
+  background:repeating-linear-gradient(-45deg,
+    var(--hazard) 0 9px, transparent 9px 18px);
+  background-color:color-mix(in srgb, var(--hazard) 22%, transparent);
+}
+.safety h3{
+  font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--hazard);
+  display:flex;align-items:center;gap:7px;font-weight:700;
+  padding:11px 14px 0;
+}
+.safety ul{padding:6px 14px 13px 32px;font-size:14.5px}
+.safety li{margin:5px 0}
+.safety li::marker{color:var(--hazard)}
 
-.sec{margin-top:20px}
-.sec>h3{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:10px}
+/* ---------- sections ---------- */
+.sec{margin-top:22px}
+.sec>h3{
+  font-weight:700;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--accent);border-bottom:1px solid var(--line);
+  padding-bottom:6px;margin-bottom:11px;
+}
 .check{list-style:none}
-.check li{position:relative;padding:9px 0 9px 30px;font-size:15px;border-bottom:1px dotted var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
-.check li::before{content:"";position:absolute;left:2px;top:11px;width:15px;height:15px;border:1.5px solid var(--muted);border-radius:3px;background:var(--card);line-height:15px;text-align:center;font-size:12px;font-weight:700}
+.check li{
+  position:relative;padding:10px 0 10px 31px;font-size:15px;
+  border-bottom:1px solid var(--line-soft);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;
+}
+.check li::before{
+  content:"";position:absolute;left:2px;top:11px;
+  width:16px;height:16px;border:1.5px solid var(--muted);
+  border-radius:3.5px;background:var(--card);
+  line-height:16px;text-align:center;font-size:12px;font-weight:700;
+  transition:background .12s ease, border-color .12s ease;
+}
 .check li:active{background:var(--hover)}
 .check li.done{color:var(--muted)}
-.check li.done::before{content:"\2713";background:var(--eaton-blue);border-color:var(--eaton-blue);color:#fff}
+.check li.done::before{content:"\2713";background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-reduced-motion: reduce){ .check li::before{transition:none} }
 
-.test{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.test h4{font-size:16px;font-weight:700;color:var(--heading)}
+.test{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:13px 15px;margin-bottom:9px;box-shadow:var(--shadow);
+}
+.test h4{font-size:15.5px;font-weight:700;color:var(--heading);letter-spacing:-.005em}
 .test p{font-size:14.5px;color:var(--text);margin-top:5px}
-.test .ref{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:1px 7px;margin-top:8px;background:var(--ref-bg)}
+.test .ref{
+  display:inline-block;font-family:var(--mono);font-size:11px;color:var(--accent);
+  border:1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  background:color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius:4px;padding:2px 7px;margin-top:9px;
+}
 
-.notes{margin-top:6px;font-size:14.5px;color:var(--muted)}
+/* maintenance interval callout */
+.interval{
+  margin-top:15px;padding:12px 15px;
+  background:var(--sunken);border:1px solid var(--line);
+  border-left:4px solid var(--accent);border-radius:var(--r);
+}
+.interval-label{
+  display:block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;
+}
+.interval p{font-size:14.5px}
+
+/* troubleshooting pitfall cards */
+.pit{
+  background:var(--card);border:1px solid var(--line);
+  border-left:4px solid var(--accent);border-radius:var(--r);
+  padding:13px 15px;margin-bottom:9px;box-shadow:var(--shadow);
+}
+.pit h4{font-size:15.5px;font-weight:700;color:var(--heading)}
+.pit p{font-size:14.5px;margin-top:5px}
+.pit .lbl{
+  font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  color:var(--accent);display:block;margin-top:10px;text-transform:uppercase;
+}
+.pit p:first-of-type{margin-top:4px}
+
+.notes{margin-top:4px;font-size:14.5px;color:var(--muted)}
 .notes b{color:var(--text)}
-
-/* ---------- SATSU stub ---------- */
-.stub{margin-top:14px;border:1px dashed var(--line);border-radius:6px;padding:14px;color:var(--muted);font-size:14.5px;background:var(--card)}
+.stub{
+  margin-top:2px;border:1px dashed var(--line);border-radius:var(--r);
+  padding:14px;color:var(--muted);font-size:14.5px;background:var(--sunken);
+}
 .stub b{color:var(--text)}
+.satsu-src{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:9px}
 
-/* ---------- footer disclaimer ---------- */
-.disclaimer{margin-top:34px;border-top:1px solid var(--line);padding-top:12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
+.reset-checks{
+  display:block;margin:20px auto 0;font-size:13px;font-weight:700;
+  color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius:7px;padding:9px 17px;background:var(--card);
+}
+.reset-checks:active{background:var(--hover)}
 
-.hdr-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.gear{color:#fff;padding:4px;opacity:.95;flex:none;margin-top:2px}
-.gear:active{opacity:.7}
-.satsu-panel{position:fixed;inset:0;background:rgba(20,30,40,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:70px 16px 16px}
-.sp-card{background:var(--card);border-radius:8px;max-width:440px;width:100%;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+/* ---------- settings / references panels ---------- */
+.satsu-panel{
+  position:fixed;inset:0;background:rgba(12,22,32,.5);z-index:50;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:64px 16px 16px;overflow-y:auto;
+  backdrop-filter:blur(2px);
+}
+.sp-card{
+  background:var(--card);border-radius:11px;max-width:440px;width:100%;
+  padding:19px;box-shadow:var(--shadow-lift);border:1px solid var(--line);
+}
 .sp-card h3{color:var(--heading);font-size:17px;margin-bottom:6px}
-.sp-status{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:8px}
-.sp-help{font-size:14px;color:var(--muted);margin-bottom:14px}
+.sp-status{font-family:var(--mono);font-size:11.5px;color:var(--accent);margin-bottom:9px;letter-spacing:.02em}
+.sp-help{font-size:14px;color:var(--muted);margin-bottom:15px}
 .sp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-.sp-btn{border:1px solid var(--line);border-radius:6px;padding:9px 14px;font-size:14px;font-weight:600;background:var(--bg);color:var(--text)}
-.sp-btn.primary{background:var(--eaton-blue);border-color:var(--eaton-blue);color:#fff}
-.sp-btn.danger{color:var(--red);border-color:var(--red);background:var(--card)}
+.sp-btn{
+  border:1px solid var(--line);border-radius:7px;padding:9px 14px;
+  font-size:14px;font-weight:600;background:var(--sunken);color:var(--text);
+}
+.sp-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.sp-btn.danger{color:var(--hazard);border-color:var(--hazard);background:var(--card)}
+.sp-btn.wide{width:100%;margin-bottom:8px}
 .sp-btn.ghost{width:100%;margin-top:4px;background:none;border:none;color:var(--accent)}
 .sp-note{font-size:13px;color:var(--muted);min-height:18px}
 .sp-note.ok{color:var(--ok)}
-.sp-note.err{color:var(--red)}
-.satsu-src{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px}
-.sp-hr{border:none;border-top:1px solid var(--line);margin:14px 0}
-.sp-btn.wide{width:100%;margin-bottom:8px}
+.sp-note.err{color:var(--hazard)}
+.sp-hr{border:none;border-top:1px solid var(--line);margin:15px 0}
+
 .refs-card{max-width:560px}
-.ref-group{margin-bottom:18px}
-.ref-group h4{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px}
-.ref-item{padding:7px 0;border-bottom:1px dotted var(--line);font-size:14px}
+.ref-group{margin-bottom:19px}
+.ref-group h4{
+  font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px;
+}
+.ref-item{padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
 .ref-item:last-child{border-bottom:none}
 .ref-item .ref-id{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--heading)}
-.ref-item .ref-name{color:var(--text);display:block;margin-top:2px}
 .ref-item a.ref-id{color:var(--accent);text-decoration:none}
 .ref-item a.ref-id:active{text-decoration:underline}
-.ref-item .ext{font-size:11px;color:var(--muted);margin-left:4px}
-.reset-checks{display:block;margin:16px auto 0;font-size:13px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 16px;background:var(--card)}
-.reset-checks:active{background:var(--hover)}
+.ref-item .ref-name{color:var(--muted);display:block;margin-top:2px}
+.ref-item .ext{font-size:11px;opacity:.7;margin-left:3px}
+
+/* ---------- footer ---------- */
+.disclaimer{
+  margin-top:38px;border-top:1px solid var(--line);padding-top:13px;
+  font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:1.65;
+}
+
 .hidden{display:none!important}
-.no-results{padding:30px 0;text-align:center;color:var(--muted);font-size:14.5px}
-mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
+.no-results{padding:34px 0;text-align:center;color:var(--muted);font-size:14.5px}
+mark{background:#FFE38C;color:#141A21;border-radius:2px;padding:0 2px}
+
 @media (prefers-reduced-motion: no-preference){
-  .detail.show{animation:slide .18s ease-out}
-  @keyframes slide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .detail.show{animation:slide .19s cubic-bezier(.2,.6,.3,1)}
+  @keyframes slide{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 }
 </style>
 </head>
@@ -197,9 +369,10 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
   </div>
 </div>
 
-<div class="tabs" id="tabs">
-  <button class="tab active" data-mode="test">Testing</button>
-  <button class="tab" data-mode="ts">Troubleshooting</button>
+<div class="tabs" id="tabs" role="tablist">
+  <button class="tab active" data-mode="test" role="tab" aria-selected="true">Acceptance</button>
+  <button class="tab" data-mode="mts" role="tab" aria-selected="false">Maintenance</button>
+  <button class="tab" data-mode="ts" role="tab" aria-selected="false">Troubleshoot</button>
 </div>
 
 <div class="search-wrap" id="searchWrap">
@@ -244,22 +417,26 @@ mark{background:#FFE68A;color:#1A222C;border-radius:2px;padding:0 2px}
      }
    }
 
-   Valid equipment IDs: lvswgr, mvswgr, bus, mccb, lvpcb, mvvac, drytx,
-   liqtx, itx, lvcable, mvcable, airsw, mcc, acmotor, asd, relay, gfp,
-   meter, battery, arrester, cap, grounding, ats
+   Valid equipment IDs (36): lvswgr, mvswgr, bus, panel, netprot, mccb,
+   lvpcb, mvvac, mvair, recloser, fuse, drytx, liqtx, itx, regulator,
+   lvcable, mvcable, airsw, outdoor, mcc, acmotor, dcmach, asd, firepump,
+   relay, gfp, meter, battery, ups, genset, ats, arrester, cap, grounding,
+   thermosurvey, sysfunc
 
    Strings are plain text. Include hold points, PPE requirements, and
    documentation requirements. Map each SATSU requirement to the closest
    equipment ID. See satsu-template.json in the repo for a starter file.
 ===================================================================== */
 const GROUPS = [
-  {label:"Switchgear & Assemblies", items:["lvswgr","mvswgr","bus"]},
-  {label:"Circuit Breakers", items:["mccb","lvpcb","mvvac"]},
-  {label:"Transformers", items:["drytx","liqtx","itx"]},
-  {label:"Cables & Switches", items:["lvcable","mvcable","airsw"]},
-  {label:"Motor Control & Rotating", items:["mcc","acmotor","asd"]},
+  {label:"Switchgear & Assemblies", items:["lvswgr","mvswgr","bus","panel","netprot"]},
+  {label:"Circuit Breakers & Interrupting Devices", items:["mccb","lvpcb","mvvac","mvair","recloser","fuse"]},
+  {label:"Transformers & Regulators", items:["drytx","liqtx","itx","regulator"]},
+  {label:"Cables, Switches & Conductors", items:["lvcable","mvcable","airsw","outdoor"]},
+  {label:"Motor Control & Rotating Machinery", items:["mcc","acmotor","dcmach","asd","firepump"]},
   {label:"Protection & Metering", items:["relay","gfp","meter"]},
-  {label:"DC, Power Quality & Misc", items:["battery","arrester","cap","grounding","ats"]}
+  {label:"Power Sources & Continuity", items:["battery","ups","genset","ats"]},
+  {label:"Power Quality & Grounding", items:["arrester","cap","grounding"]},
+  {label:"Surveys & System Verification", items:["thermosurvey","sysfunc"]}
 ];
 
 const EQ = {
@@ -765,10 +942,324 @@ ats:{
   {n:"Bypass-Isolation Function", p:"Where fitted, verify bypass to both sources and isolation drawout without load interruption.", r:"ATS 7.22.3"}
  ],
  notes:"On healthcare/EPSS work, NFPA 110 monthly test documentation requirements apply on top of NETA — flag it in the report."
+},
+panel:{
+ name:"Panelboards & Distribution Boards", sub:"LV branch-circuit and distribution panels", neta:"ATS 7.1",
+ safety:[
+  "Panel interiors stay energized above the main even with the main off — treat the line side as live until proven dead.",
+  "Verify the feeding overcurrent device and lock it out; a panel main is not always the isolating means.",
+  "Watch for multiple sources: subfeed lugs, backfed breakers, and PV/generator interconnections."
+ ],
+ vm:[
+  "Compare panel schedule and directory against actual circuit assignments; correct the directory",
+  "Verify main and branch device ratings, interrupting rating vs available fault current, and series-rating labeling",
+  "Check bus and neutral/ground bar terminations for torque and correct conductor fill",
+  "Verify neutral and equipment ground are bonded ONLY where the system requires it — not in subpanels",
+  "Inspect for double-lugged conductors, damaged breakers, missing filler plates, and enclosure integrity",
+  "Verify working clearance and that the panel is accessible and properly labeled"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Bus phase-to-phase and phase-to-ground with branch devices open, 1 minute at LV test voltage.", r:"NETA Table 100.1"},
+  {n:"Connection Resistance", p:"DLRO or calibrated torque on main lugs, bus joints, and branch stabs; compare like connections.", r:"ATS 7.1 / Table 100.12"},
+  {n:"Neutral-Ground Isolation (subpanels)", p:"With the feeder de-energized and the bonding jumper lifted, verify no continuity between neutral and ground bars. A downstream bond defeats ground-fault schemes and puts current on the EGC.", r:"NEC 250.24 / 250.142"},
+  {n:"Branch Device Verification", p:"Verify each installed breaker matches the schedule and coordination study; spot-check operation.", r:"ATS 7.6.1.1"},
+  {n:"Thermographic Survey (energized)", p:"Under load, scan main lugs, bus stabs, and breaker terminations for ΔT anomalies.", r:"NETA MTS thermography"}
+ ],
+ notes:"An out-of-date panel directory causes more wrong-breaker incidents than any equipment failure. Correct it while you're in there — it takes ten minutes and it's the single most useful thing you'll leave behind."
+},
+fuse:{
+ name:"Fuses", sub:"LV & MV power fuses, current-limiting, aR", neta:"ATS 7.5 / 7.7",
+ safety:[
+  "MV fuses can hold charge in adjacent equipment; verify de-energized and grounded before removal.",
+  "Use the correct fuse puller and rated gloves — do not pull MV fuses by hand or with pliers.",
+  "Never replace a fuse with a different class or rating to 'get it running.' Class and let-through characteristics are protection, not a suggestion."
+ ],
+ vm:[
+  "Verify fuse class, voltage rating, ampere rating, and interrupting rating against the coordination study and equipment label",
+  "Verify all fuses in a set are the same manufacturer, class, and rating — mismatched sets do not coordinate",
+  "Inspect fuse clips and holders for tension, corrosion, discoloration, and arc damage",
+  "Verify indicating devices/blown-fuse indicators are functional",
+  "Confirm current-limiting fuses are used where the equipment series rating depends on them"
+ ],
+ tests:[
+  {n:"Fuse Resistance", p:"DLRO through each fuse and its holder. Compare identical fuses in the set — an outlier indicates a partially damaged element or a poor clip connection.", r:"ATS 7.5"},
+  {n:"Clip Pressure / Connection Resistance", p:"Measure holder-to-fuse contact resistance; weak clips run hot and cause nuisance operation.", r:"ATS 7.5"},
+  {n:"Insulation Resistance (MV)", p:"Fuse-to-ground and across the open holder at class voltage where the mounting is being tested.", r:"NETA Table 100.1"},
+  {n:"Coordination Verification", p:"Confirm the installed fuse curve coordinates with upstream and downstream devices per the study, including I²t let-through where series ratings apply.", r:"Coordination study"}
+ ],
+ notes:"Semiconductor (aR) fuses protect the device, not the circuit — they must coordinate with a separate overcurrent device. An aR fuse clearing before the breaker on an overload usually means the protection scheme was sized wrong, not that the fuse failed."
+},
+netprot:{
+ name:"Network Protectors", sub:"LV secondary network protectors", neta:"ATS 7.6.3",
+ safety:[
+  "Network protectors backfeed from the secondary grid — opening the primary does NOT make the protector dead.",
+  "Coordinate with the utility before any work; network systems are typically utility-interfaced.",
+  "Submersible units may contain water and confined-space hazards — follow vault entry procedures."
+ ],
+ vm:[
+  "Verify protector rating and network relay settings against the network design",
+  "Inspect contacts, arc chutes, and the operating mechanism per OEM",
+  "Verify submersible enclosure gasket integrity and the vault drainage/pumping arrangement",
+  "Exercise the mechanism through open/close; verify manual handle operation and interlocks",
+  "Inspect the fuse links/backup fuses and their mounting"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-pole, pole-to-ground, and across open contacts at LV test voltage.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO each pole closed; compare poles and to OEM limits.", r:"ATS 7.6.3"},
+  {n:"Network Relay Functional", p:"Verify the master relay closes on correct phase-angle/voltage conditions and the phasing relay prevents closing out of phase. Verify sensitive and time-delay trip characteristics.", r:"ATS 7.6.3 / IEEE C57.12.44"},
+  {n:"Reverse Power Trip", p:"Verify the protector opens on reverse power flow into the transformer at the setting — this is the protector's core function.", r:"ATS 7.6.3"},
+  {n:"Backup Fuse Verification", p:"Confirm backup fuse rating and continuity.", r:"ATS 7.6.3"}
+ ],
+ notes:"The network protector's whole job is to open on reverse power before it backfeeds a faulted transformer. If you only prove the mechanism operates and skip the reverse-power function, you've proven nothing that matters."
+},
+mvair:{
+ name:"MV Air-Magnetic & Oil Breakers", sub:"Legacy air-magnetic, minimum-oil, bulk-oil", neta:"ATS 7.6.1.3 / 7.6.5",
+ safety:[
+  "Legacy gear often predates modern interlocking — verify racking and shutter function before trusting it.",
+  "Oil breakers: bleed pressure, verify oil level, and treat oil as both a fire and contamination hazard.",
+  "Arc chutes on air-magnetic breakers are heavy and often asbestos-containing on older units — check before disturbing."
+ ],
+ vm:[
+  "Compare nameplate to drawings; verify interrupting rating against the current fault study (legacy gear is often underrated after system growth)",
+  "Inspect arc chutes for cracks, erosion, and moisture absorption; verify blowout coils and their connections",
+  "Inspect main and arcing contacts for wear, alignment, and correct wipe/penetration per OEM",
+  "Oil units: check oil level, dielectric condition, and inspect for leaks and gasket deterioration",
+  "Exercise mechanism manually and electrically; verify latch, trip-free, and anti-pump operation",
+  "Lubricate per OEM — legacy mechanisms fail on hardened grease more than on wear"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-ground, pole-to-pole, and across open contacts at the MV test voltage, 1 minute.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO each pole; compare against OEM limits and sister poles.", r:"ATS 7.6.1.3"},
+  {n:"Overpotential Across Open Contacts", p:"AC or DC withstand across the open gap per OEM to verify interrupting-gap integrity.", r:"NETA Table 100.2"},
+  {n:"Timing & Travel", p:"Breaker analyzer for open/close times and pole synchronization where OEM limits exist. Legacy mechanisms drift with lubrication condition.", r:"ATS 7.6.1.3"},
+  {n:"Insulating Oil Analysis (oil breakers)", p:"Dielectric breakdown, moisture, and color/particulates. Oil in a breaker degrades from arcing, not just age — sample after fault duty.", r:"NETA Table 100.14"},
+  {n:"Minimum Trip/Close Voltage", p:"Verify operation at reduced control voltage per OEM and ANSI limits.", r:"ATS 7.6.1.3"}
+ ],
+ notes:"On legacy air-magnetic gear the most common finding isn't electrical at all — it's a mechanism that won't operate reliably because nobody has lubricated it in twenty years. Operate it before you test it."
+},
+recloser:{
+ name:"Reclosers & Sectionalizers", sub:"Automatic circuit reclosers, line sectionalizers", neta:"ATS 7.6.6",
+ safety:[
+  "A recloser will re-energize a line automatically — disable reclosing and verify it's disabled before any line work.",
+  "Hydraulic and electronic reclosers store operating energy; follow OEM discharge procedure.",
+  "Verify both source and load side dead; reclosers are often fed from either direction on loop schemes."
+ ],
+ vm:[
+  "Verify recloser rating, control type, and TCC curve settings against the coordination study",
+  "Inspect bushings, tank, and mounting for damage, leaks, and contamination",
+  "Verify counter reading and record it; check operations against maintenance interval",
+  "Verify the control cable, control enclosure, and battery/power supply condition",
+  "Confirm reclosing sequence settings (number of shots, reclose intervals, lockout) match the design"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Pole-to-ground, pole-to-pole, across open contacts at class voltage.", r:"NETA Table 100.1"},
+  {n:"Contact Resistance", p:"DLRO each pole; compare and trend against baseline.", r:"ATS 7.6.6"},
+  {n:"Vacuum Integrity (vacuum reclosers)", p:"Withstand across each open interrupter at the OEM voltage to prove vacuum.", r:"ATS 7.6.6 / OEM IB"},
+  {n:"Timing & Reclose Sequence", p:"Verify trip times against the TCC and confirm the full reclose sequence — shot count, dead times, and lockout — operates as programmed.", r:"ATS 7.6.6"},
+  {n:"Minimum Trip Verification", p:"Inject to confirm minimum trip current pickup matches the setting.", r:"ATS 7.6.6"},
+  {n:"Sectionalizer Count Verification", p:"For sectionalizers, verify the count-to-open logic and that it coordinates with the upstream recloser's sequence — a sectionalizer must open during the upstream dead time.", r:"ATS 7.6.6"}
+ ],
+ notes:"Sectionalizers don't interrupt fault current — they count upstream operations and open in the dead time. If the count or the dead-time window is wrong, the device opens into fault current it can't handle."
+},
+regulator:{
+ name:"Voltage Regulators", sub:"Step voltage regulators, LTC controls", neta:"ATS 7.2.3",
+ safety:[
+  "NEVER open the regulator's internal CT circuit or bypass a regulator under load without the correct sequence — bypassing an off-neutral regulator creates a short across the series winding.",
+  "Verify the regulator is on NEUTRAL and the control is off before bypassing or removing from service.",
+  "Standard liquid-filled hazards apply: pressure, hot oil, nitrogen blanket."
+ ],
+ vm:[
+  "Verify nameplate rating, regulation range, and connection type against drawings",
+  "Verify position indicator and drag hands; record as-found tap position and operations counter",
+  "Inspect for leaks, oil level, and pressure relief condition",
+  "Verify control settings — set voltage, bandwidth, time delay, line drop compensation (R and X)",
+  "Inspect the bypass switch and disconnect arrangement; verify correct operating sequence is posted",
+  "Verify control power source and the position transducer"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Winding-to-winding and windings-to-ground at class voltage; temperature-correct.", r:"NETA Table 100.5"},
+  {n:"Turns Ratio", p:"Verify ratio at neutral and at the extreme raise and lower positions; confirms the series winding and tap changer path.", r:"ATS 7.2.3"},
+  {n:"Winding Resistance", p:"Measure through the tap range; step changes across a tap transition indicate tap changer contact problems.", r:"ATS 7.2.3"},
+  {n:"Tap Changer Operation", p:"Run the regulator through its full range in both directions, verifying every tap position registers and the reversing switch operates. Listen for the mechanism completing each step.", r:"ATS 7.2.3"},
+  {n:"Control Functional Test", p:"Inject voltage to verify raise/lower operation at the set point and bandwidth, time delay, and line drop compensation response. Verify the control returns to neutral on command.", r:"ATS 7.2.3 / IEEE C57.15"},
+  {n:"Insulating Fluid Analysis", p:"Dielectric, moisture, and DGA. Regulator oil sees heavy tap-changer arcing — interpret DGA with that duty in mind.", r:"NETA Table 100.14"}
+ ],
+ notes:"The bypass sequence is the thing that hurts people and equipment here. Regulator must be on neutral, control off, then bypass — in that order, every time, no exceptions for 'it's only a minute.'"
+},
+outdoor:{
+ name:"Outdoor Bus & Overhead Conductors", sub:"Substation bus, open-wire, disconnect structures", neta:"ATS 7.4",
+ safety:[
+  "Apply personal protective grounds at the work location after verifying dead — induced voltage from parallel energized circuits is real and can be lethal.",
+  "Minimum approach distances apply to adjacent energized equipment even when your section is grounded.",
+  "Weather: stop work on approaching storms. Overhead work in wind is a separate hazard assessment."
+ ],
+ vm:[
+  "Inspect insulators for cracks, chips, contamination, and tracking; check for RIV/corona damage",
+  "Verify bus supports, expansion fittings, and hardware torque; check for corrosion at dissimilar-metal joints",
+  "Inspect conductor for strand damage, annealing, and correct sag/tension per design",
+  "Verify connector and splice condition; check for evidence of overheating",
+  "Verify clearances — phase-to-phase, phase-to-ground, and to structures/grade per design and code",
+  "Inspect grounding connections on structures, fences, and equipment"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Phase-to-ground and phase-to-phase at class voltage with the section isolated and adjacent phases grounded.", r:"NETA Table 100.1"},
+  {n:"Connection Resistance", p:"DLRO across bolted and compression connections; compare like connections along the run.", r:"ATS 7.4"},
+  {n:"Overpotential (where specified)", p:"AC withstand per class after acceptable IR. Consider ambient humidity and contamination — outdoor withstand results are weather-sensitive.", r:"NETA Table 100.2"},
+  {n:"Thermographic Survey (energized)", p:"Scan connections, splices, and disconnect blades under load. Outdoor connections fail from thermal cycling and corrosion more than from electrical stress.", r:"NETA MTS thermography"},
+  {n:"Corona/RIV Inspection", p:"Where specified, night-vision corona camera or RIV measurement on HV bus to locate discharge sources.", r:"ATS optional"}
+ ],
+ notes:"Induced voltage on a de-energized line running parallel to an energized one will read as real voltage and can deliver real current. Ground at the work location — grounds a mile away don't protect you."
+},
+genset:{
+ name:"Engine Generators & Emergency Systems", sub:"Standby/emergency generator sets", neta:"ATS 7.22.1",
+ safety:[
+  "The generator can start automatically at any time — place the control in OFF/RESET and disable remote start before working on it.",
+  "Verify the generator output breaker is open and locked; a running set with the breaker closed backfeeds the ATS.",
+  "Exhaust, fuel, hot surfaces, and rotating parts are the hazards that actually injure people here — not just the electrical."
+ ],
+ vm:[
+  "Verify nameplate rating, voltage, and connection against the design and the connected load",
+  "Inspect for fuel, oil, and coolant leaks; verify fluid levels and battery condition",
+  "Verify block heater, battery charger, and their alarms are operating — most failures to start trace to these",
+  "Inspect exhaust system, silencer, and supports; verify ventilation and louver operation",
+  "Verify generator grounding and bonding, and the neutral treatment (bonded vs. floating) matches the ATS switching arrangement",
+  "Verify control panel indications, emergency stop, and remote annunciator function"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Generator windings to ground at rating-appropriate voltage; PI on larger machines. Disconnect the voltage regulator and any electronics first.", r:"NETA Table 100.1 / IEEE 43"},
+  {n:"Protective Function Verification", p:"Verify generator protection — over/under voltage, over/under frequency, reverse power, overcurrent, and the engine shutdowns (overspeed, low oil pressure, high coolant temp).", r:"ATS 7.22.1"},
+  {n:"Voltage Regulator & Governor", p:"Verify voltage and frequency regulation, droop settings, and stability across the load range.", r:"ATS 7.22.1"},
+  {n:"Load Test", p:"Run at rated load for the required duration using building load or a load bank. Record voltage, frequency, current balance, temperatures, and pressures at intervals. Watch for wet-stacking on lightly loaded diesels.", r:"NFPA 110 / ATS 7.22.1"},
+  {n:"Start Time & Transfer Verification", p:"Verify the set starts, accepts load, and reaches rated conditions within the required time for the system class — coordinate with the ATS transfer sequence.", r:"NFPA 110"},
+  {n:"Phase Rotation & Paralleling", p:"Verify phase rotation matches the normal source before any transfer. On paralleling schemes, verify synchronizing and load sharing.", r:"ATS 7.22.1"}
+ ],
+ notes:"For healthcare and life-safety systems, NFPA 110 test intervals and documentation are a code requirement with its own recordkeeping — flag that in the report, because the customer's inspector will ask for it."
+},
+ups:{
+ name:"Uninterruptible Power Supplies", sub:"Static UPS, rotary UPS, bypass",  neta:"ATS 7.21",
+ safety:[
+  "A UPS is energized from BOTH the input and the battery — opening the input breaker does not de-energize the unit.",
+  "DC bus capacitors hold lethal charge after shutdown; follow the OEM wait time and verify with a meter.",
+  "Battery hazards apply in full: hydrogen, electrolyte, and a DC source that cannot be switched off.",
+  "Understand the bypass arrangement before you touch anything — transferring to maintenance bypass incorrectly drops the load."
+ ],
+ vm:[
+  "Verify UPS rating, configuration (single/parallel/redundant), and battery autonomy against the design",
+  "Inspect power connections, DC connections, and control wiring for torque and condition",
+  "Verify cooling fans, filters, and ambient temperature — UPS life is thermally driven",
+  "Verify firmware/settings and record them; confirm alarm contacts and monitoring points",
+  "Inspect the maintenance bypass and verify the operating sequence is posted and correct",
+  "Verify battery string condition per the battery section"
+ ],
+ tests:[
+  {n:"Insulation Resistance", p:"Input, output, and DC circuits with electronics isolated per OEM — never megger through UPS power electronics.", r:"NETA Table 100.1"},
+  {n:"Transfer Function Test", p:"Verify automatic transfer to battery on input loss and retransfer on restoration, with no interruption to the load. Verify transfer to and from static bypass on overload and fault conditions.", r:"ATS 7.21"},
+  {n:"Maintenance Bypass Operation", p:"Walk the documented make-before-break sequence and verify the load is never interrupted and the UPS is fully isolated for service.", r:"ATS 7.21"},
+  {n:"Battery Runtime / Discharge", p:"Discharge at rated load to verify actual autonomy against design. This is the only test that proves the batteries will carry the load.", r:"IEEE 450/1188"},
+  {n:"Output Quality Verification", p:"Verify output voltage, frequency, waveform, and regulation on utility, battery, and bypass modes; check harmonic distortion under load.", r:"ATS 7.21"},
+  {n:"Alarm & Monitoring Verification", p:"Verify local and remote alarms, including on-battery, low-battery, bypass, and fault indications.", r:"ATS 7.21"}
+ ],
+ notes:"The most common real-world UPS failure is batteries that can't carry the load, discovered during an actual outage. Runtime testing is the whole point — a UPS that passes every electrical test and has dead batteries is a very expensive filter."
+},
+firepump:{
+ name:"Fire Pump Controllers", sub:"Electric & transfer-switch fire pump controllers", neta:"ATS 7.22.2",
+ safety:[
+  "Fire pump circuits are intentionally NOT overload-protected — they are designed to run to destruction rather than fail to pump. Do not 'fix' this.",
+  "Notify the facility, the fire alarm monitoring company, and AHJ before disabling anything — an impaired fire system has notification requirements.",
+  "Controllers with transfer switches have two sources; isolate both."
+ ],
+ vm:[
+  "Verify controller rating and horsepower match the pump motor nameplate",
+  "Verify the disconnecting means is the listed fire-pump type, correctly rated and marked",
+  "Verify that overcurrent protection is sized per fire pump requirements (locked-rotor based), NOT conventional motor overload sizing",
+  "Inspect pressure sensing line, transducer, and that the sensing line is not valved off",
+  "Verify start settings — pressure start point, minimum run timer, and sequential start delays on multiple pumps",
+  "Verify alarm and supervisory contacts to the fire alarm system"
+ ],
+ tests:[
+  {n:"Insulation Resistance & Connection Resistance", p:"Controller bus and motor circuit IR; DLRO through contactor poles and isolating switch.", r:"NETA Table 100.1 / ATS 7.22.2"},
+  {n:"Automatic Start Test", p:"Bleed the sensing line to drop pressure below the start point and verify automatic start, minimum run time, and correct annunciation.", r:"NFPA 25 / NFPA 20"},
+  {n:"Manual & Emergency Start", p:"Verify manual start and the mechanical emergency-start handle operate the pump independent of the automatic controls.", r:"ATS 7.22.2"},
+  {n:"Transfer Switch Function (where fitted)", p:"Simulate normal source loss and verify transfer to the alternate source with the pump running, and retransfer.", r:"ATS 7.22.2 / ATS 7.22.3"},
+  {n:"Alarm Verification", p:"Verify all required alarms — phase loss/reversal, controller trouble, pump running — annunciate locally and at the fire alarm panel.", r:"NFPA 20"},
+  {n:"Phase Reversal Detection", p:"Verify the controller detects reversed phase rotation, which would run the pump backward.", r:"NFPA 20"}
+ ],
+ notes:"Fire pump controllers follow NFPA 20 and NFPA 25, and the AHJ has jurisdiction. NETA testing supplements those requirements — it does not replace the required weekly/annual fire pump testing regime."
+},
+dcmach:{
+ name:"DC Machines & M-G Sets", sub:"DC motors, generators, motor-generator sets", neta:"ATS 7.15.2",
+ safety:[
+  "Shunt field circuits store significant inductive energy — opening a field circuit under load produces a destructive voltage spike. Follow the correct shutdown sequence.",
+  "Rotating M-G sets have coupled mechanical energy on both ends; LOTO both machines.",
+  "Commutator work: machine must be locked out and the shaft blocked."
+ ],
+ vm:[
+  "Verify nameplate ratings, field connections (shunt/series/compound), and rotation against drawings",
+  "Inspect commutator for glazing, grooving, threading, bar burning, and correct film condition",
+  "Verify brush grade, length, spring pressure, and seating; check brush holder alignment and neutral setting",
+  "Inspect for carbon dust accumulation — a conductive contamination hazard in the machine and on insulation",
+  "Verify interpole and compensating winding connections where fitted",
+  "Check bearings, lubrication, and coupling alignment"
+ ],
+ tests:[
+  {n:"Insulation Resistance + PI", p:"Armature and each field circuit to ground separately at the rated test voltage; correct to 40°C. Apply the IEEE 43 guidance on PI interpretation.", r:"NETA Table 100.1 / IEEE 43"},
+  {n:"Winding Resistance", p:"Armature (bar-to-bar where specified), shunt field, series field, and interpole windings. Bar-to-bar testing finds open or shorted armature coils and bad commutator joints.", r:"ATS 7.15.2"},
+  {n:"Brush Neutral Verification", p:"Verify brushes are set on electrical neutral — off-neutral brushes cause sparking, commutator damage, and speed instability in both directions of rotation.", r:"OEM IB"},
+  {n:"Field Circuit Verification", p:"Verify field polarity, field loss protection, and field weakening range where used.", r:"ATS 7.15.2"},
+  {n:"Running Test", p:"No-load and loaded run: verify speed regulation, commutation quality (sparking), current balance, temperature rise, and vibration.", r:"ATS 7.15.2"}
+ ],
+ notes:"Commutation problems show up as brush sparking long before they show up as a failure. If the film pattern on the commutator is uneven across brush tracks, chase it — that's the machine telling you something before it fails."
+},
+thermosurvey:{
+ name:"Thermographic Survey", sub:"Infrared inspection as a standalone scope", neta:"ATS 9 / MTS",
+ safety:[
+  "Surveys are performed ENERGIZED — full arc-rated PPE per the arc flash study, and an energized work permit where required.",
+  "Opening covers on energized gear is the highest-risk part of the job. Use IR windows where installed; if you must open, follow the site's energized work procedure with a second person present.",
+  "Never contact anything inside energized equipment while positioning the camera."
+ ],
+ vm:[
+  "Verify the equipment list and scope; confirm access and outage-free viewing paths",
+  "Record load current at time of scan for each item — a scan without load data is not interpretable",
+  "Verify camera calibration is current and record the model/serial on the report",
+  "Set and record emissivity, reflected apparent temperature, distance, and ambient conditions",
+  "Identify and photograph each anomaly in both IR and visible light for the report"
+ ],
+ tests:[
+  {n:"Baseline Survey", p:"Scan all specified connections, terminations, and components under normal load. Establish reference images for future comparison.", r:"NETA MTS / NFPA 70B"},
+  {n:"ΔT Evaluation — Similar Components", p:"Compare temperature difference between corresponding components under similar loading. This is the primary evaluation method and it sidesteps most emissivity error.", r:"NETA MTS thermography table"},
+  {n:"ΔT Over Ambient", p:"Where no similar component exists, evaluate rise over ambient air temperature and classify severity per the applicable table.", r:"NETA MTS thermography table"},
+  {n:"Load Correction", p:"Heating rises with the square of current. Note the load at scan; a finding at 30% load is far more severe than the same ΔT at full load.", r:"NETA MTS"},
+  {n:"Follow-Up Verification", p:"After repair, rescan under comparable load to confirm the anomaly cleared.", r:"NETA MTS"}
+ ],
+ notes:"See the Troubleshooting tab for the instrument-side pitfalls — emissivity on shiny bus, reflections, IR window attenuation, and scanning at too low a load. Those four cause most bad thermography reports."
+},
+sysfunc:{
+ name:"System Function Tests", sub:"Integrated system verification (final commissioning)", neta:"ATS 8",
+ safety:[
+  "System testing operates real equipment — everyone on site must know what is about to happen and what will lose power.",
+  "Establish a single test director and a clear communication protocol. Most system-test incidents are coordination failures, not technical ones.",
+  "Have a written restoration plan before you start, including what to do if the system does not restore as expected."
+ ],
+ vm:[
+  "Verify all individual component tests are complete and acceptable BEFORE system testing begins",
+  "Review the sequence of operations document and confirm it matches the as-built drawings",
+  "Verify all protective settings are as-left per the coordination study",
+  "Confirm all temporary jumpers, test leads, and defeats from component testing are removed",
+  "Verify labeling, arc flash labels, and one-lines reflect the as-built system"
+ ],
+ tests:[
+  {n:"Sequence of Operations Verification", p:"Exercise the complete documented sequence — normal, alternate, and failure modes — and verify each step occurs in the correct order with correct timing.", r:"ATS 8"},
+  {n:"Protective Scheme End-to-End", p:"Prove each protection scheme from initiating condition through relay operation to final breaker/lockout action, including interlocks and blocking. Component tests prove pieces; this proves the chain.", r:"ATS 8"},
+  {n:"Source Transfer & Restoration", p:"Simulate loss of each source and verify transfer, load pickup, and retransfer including all time delays. Verify no unintended paralleling or out-of-phase closing.", r:"ATS 8"},
+  {n:"Alarm & Indication Verification", p:"Verify every local and remote alarm, indication, and SCADA point reflects actual system state — including the ones nobody looks at until an outage.", r:"ATS 8"},
+  {n:"Load Energization & Phasing", p:"Verify phase rotation and phasing at all tie points before closing. Record in-service phasor readings on protective relays to catch CT/VT errors under real load.", r:"ATS 8"},
+  {n:"Documentation Turnover", p:"Confirm as-left settings, test records, and as-built drawings are complete and issued.", r:"ATS 8"}
+ ],
+ notes:"This is where errors that survived every component test finally surface — wrong CT polarity, a relay output landed on the wrong lockout, an interlock wired backward. Component testing proves the parts; only system testing proves the system. Do not let it get value-engineered out of the scope."
 }
 };
 
-const ART = {"lvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"8\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"44\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"80\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"14\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"14\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"36\" width=\"20\" height=\"12\"/><line x1=\"8\" y1=\"62\" x2=\"112\" y2=\"62\"/></svg>", "mvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"16\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"64\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"22\" y=\"14\" width=\"28\" height=\"16\"/><rect x=\"70\" y=\"14\" width=\"28\" height=\"16\"/><circle cx=\"36\" cy=\"50\" r=\"6\"/><circle cx=\"84\" cy=\"50\" r=\"6\"/><line x1=\"16\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "bus": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"30\" width=\"108\" height=\"20\"/><line x1=\"34\" y1=\"24\" x2=\"34\" y2=\"56\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"56\"/><line x1=\"90\" y1=\"24\" x2=\"90\" y2=\"56\"/><line x1=\"20\" y1=\"56\" x2=\"20\" y2=\"66\"/><line x1=\"100\" y1=\"56\" x2=\"100\" y2=\"66\"/></svg>", "mccb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"38\" y=\"8\" width=\"44\" height=\"64\" rx=\"4\"/><rect x=\"52\" y=\"30\" width=\"16\" height=\"20\" rx=\"2\"/><line x1=\"60\" y1=\"34\" x2=\"60\" y2=\"40\"/><line x1=\"44\" y1=\"16\" x2=\"76\" y2=\"16\"/><line x1=\"44\" y1=\"62\" x2=\"76\" y2=\"62\"/></svg>", "lvpcb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"80\" height=\"60\" rx=\"3\"/><circle cx=\"44\" cy=\"40\" r=\"10\"/><line x1=\"44\" y1=\"34\" x2=\"44\" y2=\"46\"/><rect x=\"64\" y=\"24\" width=\"26\" height=\"10\"/><rect x=\"64\" y=\"42\" width=\"26\" height=\"14\"/><line x1=\"28\" y1=\"62\" x2=\"36\" y2=\"62\"/><line x1=\"84\" y1=\"62\" x2=\"92\" y2=\"62\"/></svg>", "mvvac": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"54\" width=\"100\" height=\"16\"/><rect x=\"20\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"52\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"84\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><line x1=\"28\" y1=\"8\" x2=\"28\" y2=\"14\"/><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"14\"/><line x1=\"92\" y1=\"8\" x2=\"92\" y2=\"14\"/></svg>", "drytx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"10\" width=\"92\" height=\"60\"/><circle cx=\"38\" cy=\"40\" r=\"13\"/><circle cx=\"60\" cy=\"40\" r=\"13\"/><circle cx=\"82\" cy=\"40\" r=\"13\"/><line x1=\"20\" y1=\"16\" x2=\"30\" y2=\"16\"/><line x1=\"34\" y1=\"16\" x2=\"44\" y2=\"16\"/><line x1=\"48\" y1=\"16\" x2=\"58\" y2=\"16\"/></svg>", "liqtx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"22\" width=\"60\" height=\"48\" rx=\"3\"/><line x1=\"18\" y1=\"28\" x2=\"18\" y2=\"64\"/><line x1=\"24\" y1=\"26\" x2=\"24\" y2=\"66\"/><line x1=\"96\" y1=\"26\" x2=\"96\" y2=\"66\"/><line x1=\"102\" y1=\"28\" x2=\"102\" y2=\"64\"/><line x1=\"42\" y1=\"22\" x2=\"42\" y2=\"10\"/><line x1=\"60\" y1=\"22\" x2=\"60\" y2=\"10\"/><line x1=\"78\" y1=\"22\" x2=\"78\" y2=\"10\"/><circle cx=\"42\" cy=\"8\" r=\"2.5\"/><circle cx=\"60\" cy=\"8\" r=\"2.5\"/><circle cx=\"78\" cy=\"8\" r=\"2.5\"/></svg>", "itx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"44\" cy=\"40\" r=\"24\"/><circle cx=\"44\" cy=\"40\" r=\"12\"/><line x1=\"44\" y1=\"16\" x2=\"44\" y2=\"4\"/><rect x=\"80\" y=\"26\" width=\"28\" height=\"28\"/><line x1=\"94\" y1=\"26\" x2=\"94\" y2=\"14\"/><line x1=\"88\" y1=\"54\" x2=\"88\" y2=\"64\"/><line x1=\"100\" y1=\"54\" x2=\"100\" y2=\"64\"/></svg>", "lvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 50 C 30 20, 60 66, 88 34\"/><path d=\"M8 58 C 30 28, 60 74, 88 42\"/><line x1=\"88\" y1=\"34\" x2=\"106\" y2=\"26\"/><line x1=\"88\" y1=\"42\" x2=\"106\" y2=\"40\"/><line x1=\"88\" y1=\"42\" x2=\"104\" y2=\"52\"/></svg>", "mvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"28\"/><circle cx=\"60\" cy=\"40\" r=\"19\"/><circle cx=\"60\" cy=\"40\" r=\"11\"/><circle cx=\"60\" cy=\"40\" r=\"4\" fill=\"currentColor\"/></svg>", "airsw": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"56\" r=\"4\"/><circle cx=\"88\" cy=\"56\" r=\"4\"/><line x1=\"28\" y1=\"54\" x2=\"78\" y2=\"20\"/><line x1=\"8\" y1=\"56\" x2=\"20\" y2=\"56\"/><line x1=\"92\" y1=\"56\" x2=\"112\" y2=\"56\"/><line x1=\"78\" y1=\"20\" x2=\"84\" y2=\"14\"/></svg>", "mcc": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"8\" width=\"92\" height=\"64\"/><line x1=\"45\" y1=\"8\" x2=\"45\" y2=\"72\"/><line x1=\"76\" y1=\"8\" x2=\"76\" y2=\"72\"/><line x1=\"14\" y1=\"30\" x2=\"106\" y2=\"30\"/><line x1=\"14\" y1=\"52\" x2=\"106\" y2=\"52\"/><rect x=\"22\" y=\"14\" width=\"14\" height=\"8\"/><rect x=\"53\" y=\"36\" width=\"14\" height=\"8\"/><rect x=\"84\" y=\"58\" width=\"14\" height=\"8\"/></svg>", "acmotor": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"22\" y=\"24\" width=\"58\" height=\"36\" rx=\"6\"/><line x1=\"80\" y1=\"42\" x2=\"104\" y2=\"42\"/><line x1=\"30\" y1=\"24\" x2=\"30\" y2=\"14\"/><line x1=\"46\" y1=\"24\" x2=\"46\" y2=\"14\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"14\"/><line x1=\"30\" y1=\"14\" x2=\"62\" y2=\"14\"/><line x1=\"22\" y1=\"60\" x2=\"16\" y2=\"70\"/><line x1=\"80\" y1=\"60\" x2=\"86\" y2=\"70\"/></svg>", "asd": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"8\" width=\"60\" height=\"64\" rx=\"3\"/><rect x=\"38\" y=\"16\" width=\"44\" height=\"14\"/><circle cx=\"44\" cy=\"42\" r=\"3\"/><circle cx=\"56\" cy=\"42\" r=\"3\"/><circle cx=\"68\" cy=\"42\" r=\"3\"/><line x1=\"38\" y1=\"56\" x2=\"42\" y2=\"56\"/><line x1=\"46\" y1=\"56\" x2=\"50\" y2=\"56\"/><line x1=\"54\" y1=\"56\" x2=\"58\" y2=\"56\"/><line x1=\"62\" y1=\"56\" x2=\"66\" y2=\"56\"/><line x1=\"70\" y1=\"56\" x2=\"74\" y2=\"56\"/><line x1=\"38\" y1=\"63\" x2=\"82\" y2=\"63\"/></svg>", "relay": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"24\" y=\"12\" width=\"72\" height=\"56\" rx=\"3\"/><rect x=\"32\" y=\"20\" width=\"34\" height=\"16\"/><circle cx=\"78\" cy=\"24\" r=\"3\"/><circle cx=\"88\" cy=\"24\" r=\"3\"/><circle cx=\"78\" cy=\"34\" r=\"3\"/><circle cx=\"88\" cy=\"34\" r=\"3\"/><rect x=\"32\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"46\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"60\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"74\" y=\"46\" width=\"8\" height=\"12\"/></svg>", "gfp": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"26\"/><line x1=\"50\" y1=\"6\" x2=\"50\" y2=\"74\"/><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"74\"/><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"74\"/><line x1=\"86\" y1=\"46\" x2=\"106\" y2=\"46\"/><rect x=\"100\" y=\"40\" width=\"14\" height=\"12\"/></svg>", "meter": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"28\" y=\"12\" width=\"64\" height=\"56\" rx=\"4\"/><circle cx=\"60\" cy=\"38\" r=\"18\"/><line x1=\"60\" y1=\"38\" x2=\"70\" y2=\"26\"/><line x1=\"46\" y1=\"60\" x2=\"74\" y2=\"60\"/></svg>", "battery": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"42\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"74\" y=\"26\" width=\"24\" height=\"34\"/><line x1=\"16\" y1=\"26\" x2=\"16\" y2=\"18\"/><line x1=\"28\" y1=\"26\" x2=\"28\" y2=\"18\"/><line x1=\"48\" y1=\"26\" x2=\"48\" y2=\"18\"/><line x1=\"60\" y1=\"26\" x2=\"60\" y2=\"18\"/><line x1=\"80\" y1=\"26\" x2=\"80\" y2=\"18\"/><line x1=\"92\" y1=\"26\" x2=\"92\" y2=\"18\"/><line x1=\"28\" y1=\"20\" x2=\"48\" y2=\"20\"/><line x1=\"60\" y1=\"20\" x2=\"80\" y2=\"20\"/><line x1=\"6\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "arrester": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"12\"/><path d=\"M44 16 h32 M48 24 h24 M44 32 h32 M48 40 h24 M44 48 h32 M48 56 h24\"/><line x1=\"60\" y1=\"58\" x2=\"60\" y2=\"68\"/><line x1=\"50\" y1=\"68\" x2=\"70\" y2=\"68\"/><line x1=\"54\" y1=\"72\" x2=\"66\" y2=\"72\"/><line x1=\"58\" y1=\"76\" x2=\"62\" y2=\"76\"/></svg>", "cap": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"18\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"50\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"82\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><line x1=\"28\" y1=\"20\" x2=\"28\" y2=\"10\"/><line x1=\"60\" y1=\"20\" x2=\"60\" y2=\"10\"/><line x1=\"92\" y1=\"20\" x2=\"92\" y2=\"10\"/><line x1=\"28\" y1=\"10\" x2=\"92\" y2=\"10\"/><line x1=\"12\" y1=\"66\" x2=\"108\" y2=\"66\"/></svg>", "grounding": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"40\"/><line x1=\"40\" y1=\"40\" x2=\"80\" y2=\"40\"/><line x1=\"47\" y1=\"50\" x2=\"73\" y2=\"50\"/><line x1=\"54\" y1=\"60\" x2=\"66\" y2=\"60\"/><line x1=\"16\" y1=\"70\" x2=\"104\" y2=\"70\"/><line x1=\"24\" y1=\"70\" x2=\"18\" y2=\"78\"/><line x1=\"44\" y1=\"70\" x2=\"38\" y2=\"78\"/><line x1=\"64\" y1=\"70\" x2=\"58\" y2=\"78\"/><line x1=\"84\" y1=\"70\" x2=\"78\" y2=\"78\"/></svg>", "ats": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"12\" y1=\"20\" x2=\"46\" y2=\"20\"/><line x1=\"12\" y1=\"60\" x2=\"46\" y2=\"60\"/><circle cx=\"50\" cy=\"20\" r=\"4\"/><circle cx=\"50\" cy=\"60\" r=\"4\"/><line x1=\"53\" y1=\"22\" x2=\"84\" y2=\"38\"/><circle cx=\"87\" cy=\"40\" r=\"4\"/><line x1=\"91\" y1=\"40\" x2=\"112\" y2=\"40\"/><text x=\"14\" y=\"14\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">N</text><text x=\"14\" y=\"54\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">E</text></svg>"};
+const ART = {"lvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"8\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"44\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"80\" y=\"10\" width=\"32\" height=\"60\"/><rect x=\"14\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"14\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"50\" y=\"36\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"18\" width=\"20\" height=\"12\"/><rect x=\"86\" y=\"36\" width=\"20\" height=\"12\"/><line x1=\"8\" y1=\"62\" x2=\"112\" y2=\"62\"/></svg>", "mvswgr": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"16\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"64\" y=\"6\" width=\"40\" height=\"68\"/><rect x=\"22\" y=\"14\" width=\"28\" height=\"16\"/><rect x=\"70\" y=\"14\" width=\"28\" height=\"16\"/><circle cx=\"36\" cy=\"50\" r=\"6\"/><circle cx=\"84\" cy=\"50\" r=\"6\"/><line x1=\"16\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "bus": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"6\" y=\"30\" width=\"108\" height=\"20\"/><line x1=\"34\" y1=\"24\" x2=\"34\" y2=\"56\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"56\"/><line x1=\"90\" y1=\"24\" x2=\"90\" y2=\"56\"/><line x1=\"20\" y1=\"56\" x2=\"20\" y2=\"66\"/><line x1=\"100\" y1=\"56\" x2=\"100\" y2=\"66\"/></svg>", "mccb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"38\" y=\"8\" width=\"44\" height=\"64\" rx=\"4\"/><rect x=\"52\" y=\"30\" width=\"16\" height=\"20\" rx=\"2\"/><line x1=\"60\" y1=\"34\" x2=\"60\" y2=\"40\"/><line x1=\"44\" y1=\"16\" x2=\"76\" y2=\"16\"/><line x1=\"44\" y1=\"62\" x2=\"76\" y2=\"62\"/></svg>", "lvpcb": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"10\" width=\"80\" height=\"60\" rx=\"3\"/><circle cx=\"44\" cy=\"40\" r=\"10\"/><line x1=\"44\" y1=\"34\" x2=\"44\" y2=\"46\"/><rect x=\"64\" y=\"24\" width=\"26\" height=\"10\"/><rect x=\"64\" y=\"42\" width=\"26\" height=\"14\"/><line x1=\"28\" y1=\"62\" x2=\"36\" y2=\"62\"/><line x1=\"84\" y1=\"62\" x2=\"92\" y2=\"62\"/></svg>", "mvvac": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"54\" width=\"100\" height=\"16\"/><rect x=\"20\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"52\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><rect x=\"84\" y=\"14\" width=\"16\" height=\"36\" rx=\"8\"/><line x1=\"28\" y1=\"8\" x2=\"28\" y2=\"14\"/><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"14\"/><line x1=\"92\" y1=\"8\" x2=\"92\" y2=\"14\"/></svg>", "drytx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"10\" width=\"92\" height=\"60\"/><circle cx=\"38\" cy=\"40\" r=\"13\"/><circle cx=\"60\" cy=\"40\" r=\"13\"/><circle cx=\"82\" cy=\"40\" r=\"13\"/><line x1=\"20\" y1=\"16\" x2=\"30\" y2=\"16\"/><line x1=\"34\" y1=\"16\" x2=\"44\" y2=\"16\"/><line x1=\"48\" y1=\"16\" x2=\"58\" y2=\"16\"/></svg>", "liqtx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"22\" width=\"60\" height=\"48\" rx=\"3\"/><line x1=\"18\" y1=\"28\" x2=\"18\" y2=\"64\"/><line x1=\"24\" y1=\"26\" x2=\"24\" y2=\"66\"/><line x1=\"96\" y1=\"26\" x2=\"96\" y2=\"66\"/><line x1=\"102\" y1=\"28\" x2=\"102\" y2=\"64\"/><line x1=\"42\" y1=\"22\" x2=\"42\" y2=\"10\"/><line x1=\"60\" y1=\"22\" x2=\"60\" y2=\"10\"/><line x1=\"78\" y1=\"22\" x2=\"78\" y2=\"10\"/><circle cx=\"42\" cy=\"8\" r=\"2.5\"/><circle cx=\"60\" cy=\"8\" r=\"2.5\"/><circle cx=\"78\" cy=\"8\" r=\"2.5\"/></svg>", "itx": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"44\" cy=\"40\" r=\"24\"/><circle cx=\"44\" cy=\"40\" r=\"12\"/><line x1=\"44\" y1=\"16\" x2=\"44\" y2=\"4\"/><rect x=\"80\" y=\"26\" width=\"28\" height=\"28\"/><line x1=\"94\" y1=\"26\" x2=\"94\" y2=\"14\"/><line x1=\"88\" y1=\"54\" x2=\"88\" y2=\"64\"/><line x1=\"100\" y1=\"54\" x2=\"100\" y2=\"64\"/></svg>", "lvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 50 C 30 20, 60 66, 88 34\"/><path d=\"M8 58 C 30 28, 60 74, 88 42\"/><line x1=\"88\" y1=\"34\" x2=\"106\" y2=\"26\"/><line x1=\"88\" y1=\"42\" x2=\"106\" y2=\"40\"/><line x1=\"88\" y1=\"42\" x2=\"104\" y2=\"52\"/></svg>", "mvcable": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"28\"/><circle cx=\"60\" cy=\"40\" r=\"19\"/><circle cx=\"60\" cy=\"40\" r=\"11\"/><circle cx=\"60\" cy=\"40\" r=\"4\" fill=\"currentColor\"/></svg>", "airsw": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"24\" cy=\"56\" r=\"4\"/><circle cx=\"88\" cy=\"56\" r=\"4\"/><line x1=\"28\" y1=\"54\" x2=\"78\" y2=\"20\"/><line x1=\"8\" y1=\"56\" x2=\"20\" y2=\"56\"/><line x1=\"92\" y1=\"56\" x2=\"112\" y2=\"56\"/><line x1=\"78\" y1=\"20\" x2=\"84\" y2=\"14\"/></svg>", "mcc": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"14\" y=\"8\" width=\"92\" height=\"64\"/><line x1=\"45\" y1=\"8\" x2=\"45\" y2=\"72\"/><line x1=\"76\" y1=\"8\" x2=\"76\" y2=\"72\"/><line x1=\"14\" y1=\"30\" x2=\"106\" y2=\"30\"/><line x1=\"14\" y1=\"52\" x2=\"106\" y2=\"52\"/><rect x=\"22\" y=\"14\" width=\"14\" height=\"8\"/><rect x=\"53\" y=\"36\" width=\"14\" height=\"8\"/><rect x=\"84\" y=\"58\" width=\"14\" height=\"8\"/></svg>", "acmotor": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"22\" y=\"24\" width=\"58\" height=\"36\" rx=\"6\"/><line x1=\"80\" y1=\"42\" x2=\"104\" y2=\"42\"/><line x1=\"30\" y1=\"24\" x2=\"30\" y2=\"14\"/><line x1=\"46\" y1=\"24\" x2=\"46\" y2=\"14\"/><line x1=\"62\" y1=\"24\" x2=\"62\" y2=\"14\"/><line x1=\"30\" y1=\"14\" x2=\"62\" y2=\"14\"/><line x1=\"22\" y1=\"60\" x2=\"16\" y2=\"70\"/><line x1=\"80\" y1=\"60\" x2=\"86\" y2=\"70\"/></svg>", "asd": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"8\" width=\"60\" height=\"64\" rx=\"3\"/><rect x=\"38\" y=\"16\" width=\"44\" height=\"14\"/><circle cx=\"44\" cy=\"42\" r=\"3\"/><circle cx=\"56\" cy=\"42\" r=\"3\"/><circle cx=\"68\" cy=\"42\" r=\"3\"/><line x1=\"38\" y1=\"56\" x2=\"42\" y2=\"56\"/><line x1=\"46\" y1=\"56\" x2=\"50\" y2=\"56\"/><line x1=\"54\" y1=\"56\" x2=\"58\" y2=\"56\"/><line x1=\"62\" y1=\"56\" x2=\"66\" y2=\"56\"/><line x1=\"70\" y1=\"56\" x2=\"74\" y2=\"56\"/><line x1=\"38\" y1=\"63\" x2=\"82\" y2=\"63\"/></svg>", "relay": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"24\" y=\"12\" width=\"72\" height=\"56\" rx=\"3\"/><rect x=\"32\" y=\"20\" width=\"34\" height=\"16\"/><circle cx=\"78\" cy=\"24\" r=\"3\"/><circle cx=\"88\" cy=\"24\" r=\"3\"/><circle cx=\"78\" cy=\"34\" r=\"3\"/><circle cx=\"88\" cy=\"34\" r=\"3\"/><rect x=\"32\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"46\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"60\" y=\"46\" width=\"8\" height=\"12\"/><rect x=\"74\" y=\"46\" width=\"8\" height=\"12\"/></svg>", "gfp": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"60\" cy=\"40\" r=\"26\"/><line x1=\"50\" y1=\"6\" x2=\"50\" y2=\"74\"/><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"74\"/><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"74\"/><line x1=\"86\" y1=\"46\" x2=\"106\" y2=\"46\"/><rect x=\"100\" y=\"40\" width=\"14\" height=\"12\"/></svg>", "meter": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"28\" y=\"12\" width=\"64\" height=\"56\" rx=\"4\"/><circle cx=\"60\" cy=\"38\" r=\"18\"/><line x1=\"60\" y1=\"38\" x2=\"70\" y2=\"26\"/><line x1=\"46\" y1=\"60\" x2=\"74\" y2=\"60\"/></svg>", "battery": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"42\" y=\"26\" width=\"24\" height=\"34\"/><rect x=\"74\" y=\"26\" width=\"24\" height=\"34\"/><line x1=\"16\" y1=\"26\" x2=\"16\" y2=\"18\"/><line x1=\"28\" y1=\"26\" x2=\"28\" y2=\"18\"/><line x1=\"48\" y1=\"26\" x2=\"48\" y2=\"18\"/><line x1=\"60\" y1=\"26\" x2=\"60\" y2=\"18\"/><line x1=\"80\" y1=\"26\" x2=\"80\" y2=\"18\"/><line x1=\"92\" y1=\"26\" x2=\"92\" y2=\"18\"/><line x1=\"28\" y1=\"20\" x2=\"48\" y2=\"20\"/><line x1=\"60\" y1=\"20\" x2=\"80\" y2=\"20\"/><line x1=\"6\" y1=\"66\" x2=\"104\" y2=\"66\"/></svg>", "arrester": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"6\" x2=\"60\" y2=\"12\"/><path d=\"M44 16 h32 M48 24 h24 M44 32 h32 M48 40 h24 M44 48 h32 M48 56 h24\"/><line x1=\"60\" y1=\"58\" x2=\"60\" y2=\"68\"/><line x1=\"50\" y1=\"68\" x2=\"70\" y2=\"68\"/><line x1=\"54\" y1=\"72\" x2=\"66\" y2=\"72\"/><line x1=\"58\" y1=\"76\" x2=\"62\" y2=\"76\"/></svg>", "cap": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"18\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"50\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><rect x=\"82\" y=\"20\" width=\"20\" height=\"40\" rx=\"4\"/><line x1=\"28\" y1=\"20\" x2=\"28\" y2=\"10\"/><line x1=\"60\" y1=\"20\" x2=\"60\" y2=\"10\"/><line x1=\"92\" y1=\"20\" x2=\"92\" y2=\"10\"/><line x1=\"28\" y1=\"10\" x2=\"92\" y2=\"10\"/><line x1=\"12\" y1=\"66\" x2=\"108\" y2=\"66\"/></svg>", "grounding": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"40\"/><line x1=\"40\" y1=\"40\" x2=\"80\" y2=\"40\"/><line x1=\"47\" y1=\"50\" x2=\"73\" y2=\"50\"/><line x1=\"54\" y1=\"60\" x2=\"66\" y2=\"60\"/><line x1=\"16\" y1=\"70\" x2=\"104\" y2=\"70\"/><line x1=\"24\" y1=\"70\" x2=\"18\" y2=\"78\"/><line x1=\"44\" y1=\"70\" x2=\"38\" y2=\"78\"/><line x1=\"64\" y1=\"70\" x2=\"58\" y2=\"78\"/><line x1=\"84\" y1=\"70\" x2=\"78\" y2=\"78\"/></svg>", "ats": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"12\" y1=\"20\" x2=\"46\" y2=\"20\"/><line x1=\"12\" y1=\"60\" x2=\"46\" y2=\"60\"/><circle cx=\"50\" cy=\"20\" r=\"4\"/><circle cx=\"50\" cy=\"60\" r=\"4\"/><line x1=\"53\" y1=\"22\" x2=\"84\" y2=\"38\"/><circle cx=\"87\" cy=\"40\" r=\"4\"/><line x1=\"91\" y1=\"40\" x2=\"112\" y2=\"40\"/><text x=\"14\" y=\"14\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">N</text><text x=\"14\" y=\"54\" font-size=\"10\" stroke-width=\"1\" fill=\"currentColor\">E</text></svg>", "panel": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"6\" width=\"60\" height=\"68\"/><line x1=\"60\" y1=\"14\" x2=\"60\" y2=\"70\"/><rect x=\"36\" y=\"18\" width=\"18\" height=\"7\"/><rect x=\"66\" y=\"18\" width=\"18\" height=\"7\"/><rect x=\"36\" y=\"30\" width=\"18\" height=\"7\"/><rect x=\"66\" y=\"30\" width=\"18\" height=\"7\"/><rect x=\"36\" y=\"42\" width=\"18\" height=\"7\"/><rect x=\"66\" y=\"42\" width=\"18\" height=\"7\"/><rect x=\"36\" y=\"54\" width=\"18\" height=\"7\"/><rect x=\"66\" y=\"54\" width=\"18\" height=\"7\"/></svg>", "fuse": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"30\" y=\"30\" width=\"60\" height=\"20\" rx=\"3\"/><rect x=\"18\" y=\"34\" width=\"12\" height=\"12\"/><rect x=\"90\" y=\"34\" width=\"12\" height=\"12\"/><line x1=\"6\" y1=\"40\" x2=\"18\" y2=\"40\"/><line x1=\"102\" y1=\"40\" x2=\"114\" y2=\"40\"/><line x1=\"38\" y1=\"40\" x2=\"82\" y2=\"40\" stroke-dasharray=\"4 3\"/></svg>", "netprot": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"24\" y=\"14\" width=\"72\" height=\"52\" rx=\"3\"/><circle cx=\"44\" cy=\"40\" r=\"9\"/><line x1=\"44\" y1=\"33\" x2=\"44\" y2=\"47\"/><rect x=\"62\" y=\"26\" width=\"24\" height=\"10\"/><rect x=\"62\" y=\"44\" width=\"24\" height=\"10\"/><line x1=\"8\" y1=\"40\" x2=\"24\" y2=\"40\"/><line x1=\"96\" y1=\"40\" x2=\"112\" y2=\"40\"/></svg>", "mvair": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"12\" y=\"52\" width=\"96\" height=\"18\"/><path d=\"M24 12 v34 M32 12 v34 M40 12 v34\"/><path d=\"M52 12 v34 M60 12 v34 M68 12 v34\"/><path d=\"M80 12 v34 M88 12 v34 M96 12 v34\"/><line x1=\"20\" y1=\"8\" x2=\"44\" y2=\"8\"/><line x1=\"48\" y1=\"8\" x2=\"72\" y2=\"8\"/><line x1=\"76\" y1=\"8\" x2=\"100\" y2=\"8\"/></svg>", "recloser": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><ellipse cx=\"60\" cy=\"46\" rx=\"30\" ry=\"24\"/><line x1=\"42\" y1=\"22\" x2=\"42\" y2=\"8\"/><line x1=\"60\" y1=\"22\" x2=\"60\" y2=\"8\"/><line x1=\"78\" y1=\"22\" x2=\"78\" y2=\"8\"/><circle cx=\"42\" cy=\"6\" r=\"2.5\"/><circle cx=\"60\" cy=\"6\" r=\"2.5\"/><circle cx=\"78\" cy=\"6\" r=\"2.5\"/><path d=\"M48 46 a12 12 0 1 0 12 -12\" /><line x1=\"60\" y1=\"30\" x2=\"60\" y2=\"40\"/></svg>", "regulator": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"28\" y=\"24\" width=\"64\" height=\"46\" rx=\"3\"/><line x1=\"40\" y1=\"24\" x2=\"40\" y2=\"12\"/><line x1=\"60\" y1=\"24\" x2=\"60\" y2=\"12\"/><line x1=\"80\" y1=\"24\" x2=\"80\" y2=\"12\"/><circle cx=\"40\" cy=\"10\" r=\"2.5\"/><circle cx=\"60\" cy=\"10\" r=\"2.5\"/><circle cx=\"80\" cy=\"10\" r=\"2.5\"/><circle cx=\"60\" cy=\"47\" r=\"13\"/><line x1=\"60\" y1=\"47\" x2=\"68\" y2=\"39\"/><line x1=\"60\" y1=\"47\" x2=\"60\" y2=\"36\"/></svg>", "outdoor": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"60\" y1=\"8\" x2=\"60\" y2=\"70\"/><line x1=\"40\" y1=\"70\" x2=\"80\" y2=\"70\"/><line x1=\"30\" y1=\"20\" x2=\"90\" y2=\"20\"/><path d=\"M30 20 v6 M46 20 v6 M74 20 v6 M90 20 v6\"/><path d=\"M8 30 q26 10 22 -0.5\" stroke-dasharray=\"0\"/><path d=\"M30 27 C 12 34, 4 30, 2 28\"/><path d=\"M90 27 C 108 34, 116 30, 118 28\"/><line x1=\"46\" y1=\"26\" x2=\"46\" y2=\"32\"/><line x1=\"74\" y1=\"26\" x2=\"74\" y2=\"32\"/></svg>", "genset": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"30\" width=\"44\" height=\"32\" rx=\"3\"/><rect x=\"60\" y=\"34\" width=\"34\" height=\"24\" rx=\"10\"/><line x1=\"54\" y1=\"46\" x2=\"60\" y2=\"46\"/><line x1=\"94\" y1=\"46\" x2=\"106\" y2=\"46\"/><path d=\"M18 30 v-8 h8\"/><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"14\"/><line x1=\"14\" y1=\"62\" x2=\"14\" y2=\"70\"/><line x1=\"90\" y1=\"58\" x2=\"90\" y2=\"70\"/><line x1=\"6\" y1=\"70\" x2=\"106\" y2=\"70\"/></svg>", "ups": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"26\" y=\"8\" width=\"68\" height=\"64\" rx=\"3\"/><rect x=\"34\" y=\"16\" width=\"52\" height=\"14\"/><rect x=\"34\" y=\"38\" width=\"22\" height=\"26\"/><line x1=\"39\" y1=\"38\" x2=\"39\" y2=\"33\"/><line x1=\"51\" y1=\"38\" x2=\"51\" y2=\"33\"/><path d=\"M68 40 l-6 12 h8 l-5 12\"/><line x1=\"12\" y1=\"40\" x2=\"26\" y2=\"40\"/><line x1=\"94\" y1=\"40\" x2=\"108\" y2=\"40\"/></svg>", "firepump": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"46\" cy=\"44\" r=\"20\"/><circle cx=\"46\" cy=\"44\" r=\"6\"/><rect x=\"72\" y=\"16\" width=\"34\" height=\"56\" rx=\"3\"/><line x1=\"66\" y1=\"44\" x2=\"72\" y2=\"44\"/><rect x=\"78\" y=\"24\" width=\"22\" height=\"12\"/><circle cx=\"83\" cy=\"46\" r=\"3\"/><circle cx=\"95\" cy=\"46\" r=\"3\"/><line x1=\"78\" y1=\"60\" x2=\"100\" y2=\"60\"/><line x1=\"46\" y1=\"24\" x2=\"46\" y2=\"12\"/></svg>", "dcmach": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"26\" width=\"56\" height=\"34\" rx=\"5\"/><line x1=\"76\" y1=\"43\" x2=\"100\" y2=\"43\"/><rect x=\"30\" y=\"18\" width=\"8\" height=\"8\"/><rect x=\"58\" y=\"18\" width=\"8\" height=\"8\"/><line x1=\"34\" y1=\"18\" x2=\"34\" y2=\"12\"/><line x1=\"62\" y1=\"18\" x2=\"62\" y2=\"12\"/><circle cx=\"48\" cy=\"43\" r=\"11\"/><line x1=\"41\" y1=\"35\" x2=\"55\" y2=\"51\"/><line x1=\"20\" y1=\"60\" x2=\"14\" y2=\"70\"/><line x1=\"76\" y1=\"60\" x2=\"82\" y2=\"70\"/></svg>", "thermosurvey": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"16\" y=\"24\" width=\"46\" height=\"34\" rx=\"4\"/><circle cx=\"39\" cy=\"41\" r=\"11\"/><circle cx=\"39\" cy=\"41\" r=\"5\"/><rect x=\"26\" y=\"58\" width=\"12\" height=\"12\"/><path d=\"M74 30 h10 M74 41 h16 M74 52 h10\"/><path d=\"M96 24 l8 8 -8 8\" /><line x1=\"70\" y1=\"20\" x2=\"70\" y2=\"62\" stroke-dasharray=\"4 3\"/></svg>", "sysfunc": "<svg viewBox=\"0 0 120 80\" stroke=\"currentColor\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"8\" y=\"14\" width=\"26\" height=\"20\" rx=\"3\"/><rect x=\"8\" y=\"46\" width=\"26\" height=\"20\" rx=\"3\"/><rect x=\"86\" y=\"30\" width=\"26\" height=\"20\" rx=\"3\"/><circle cx=\"60\" cy=\"40\" r=\"12\"/><path d=\"M55 40 l4 4 7 -8\"/><line x1=\"34\" y1=\"24\" x2=\"48\" y2=\"34\"/><line x1=\"34\" y1=\"56\" x2=\"48\" y2=\"46\"/><line x1=\"72\" y1=\"40\" x2=\"86\" y2=\"40\"/></svg>"};
 
 
 /* ============== TROUBLESHOOTING CONTENT — test equipment pitfalls ============== */
@@ -901,13 +1392,17 @@ const REFS = [
  { group:"NEMA / ANSI Equipment Standards", items:[
    { id:"ANSI C37.20.1", name:"Metal-Enclosed Low-Voltage (1000 Vac and below) Power Circuit Breaker Switchgear (bus withstand levels).", url:"https://www.nema.org/standards/view/american-national-standard-for-metal-enclosed-low-voltage-power-circuit-breaker-switchgear" },
    { id:"ANSI C37.20.2", name:"Metal-Clad Switchgear (MV bus dielectric withstand).", url:"https://www.nema.org/standards/view/american-national-standard-for-metal-clad-switchgear" },
+   { id:"IEEE C57.15", name:"Standard Requirements, Terminology, and Test Code for Step-Voltage Regulators.", url:"https://standards.ieee.org/ieee/C57.15/6790/" },
+   { id:"IEEE C57.12.44", name:"Standard Requirements for Secondary Network Protectors.", url:"https://standards.ieee.org/ieee/C57.12.44/7288/" },
    { id:"NEMA AB 4", name:"Guidelines for Inspection and Preventive Maintenance of Molded-Case Circuit Breakers Used in Commercial and Industrial Applications.", url:"https://www.nema.org/standards/view/guidelines-for-inspection-and-preventive-maintenance-of-molded-case-circuit-breakers-used-in-commercial-and-industrial-applications" }
  ]},
  { group:"NFPA / Code References", items:[
    { id:"NFPA 70 (NEC)", name:"National Electrical Code — Art. 230.95 (LV ground-fault protection), Art. 250 (bonding/grounding), Art. 460.6 (capacitor discharge times), Art. 490 (MV).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70" },
    { id:"NFPA 70B", name:"Standard for Electrical Equipment Maintenance (now a standard, not a recommended practice).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70b-standard-development/70b" },
    { id:"NFPA 70E", name:"Standard for Electrical Safety in the Workplace (arc flash, approach boundaries, the 50 Vac safe-voltage threshold).", url:"https://www.nfpa.org/codes-and-standards/nfpa-70e-standard-development/70e" },
-   { id:"NFPA 110", name:"Standard for Emergency and Standby Power Systems (EPSS transfer/test documentation for ATS).", url:"https://www.nfpa.org/codes-and-standards/nfpa-110-standard-development/110" }
+   { id:"NFPA 110", name:"Standard for Emergency and Standby Power Systems (EPSS transfer/test documentation for ATS and engine generators).", url:"https://www.nfpa.org/codes-and-standards/nfpa-110-standard-development/110" },
+   { id:"NFPA 20", name:"Standard for the Installation of Stationary Pumps for Fire Protection (fire pump controller requirements, phase reversal, alarms).", url:"https://www.nfpa.org/codes-and-standards/nfpa-20-standard-development/20" },
+   { id:"NFPA 25", name:"Standard for the Inspection, Testing, and Maintenance of Water-Based Fire Protection Systems (fire pump test regime).", url:"https://www.nfpa.org/codes-and-standards/nfpa-25-standard-development/25" }
  ]},
  { group:"OSHA — 29 CFR", items:[
    { id:"29 CFR 1910.147", name:"The Control of Hazardous Energy (Lockout/Tagout).", url:"https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147" },
@@ -919,6 +1414,429 @@ const REFS = [
    { id:"PXPM / PXG", name:"Eaton Power Xpert software for trip-unit configuration, event retrieval, and clearing standing alarms after testing. Refer to the tool's own documentation.", url:"https://www.eaton.com/us/en-us/products/electrical-circuit-protection/trip-units.html" }
  ]}
 ];
+
+
+/* ============== MAINTENANCE (MTS) CONTENT — keyed by equipment id ============== */
+const MTS = {
+lvswgr:{ interval:"1–3 years; annually in dusty, humid, or corrosive environments or where the assembly is critical.",
+ focus:"Acceptance proves the assembly was built right. Maintenance proves it hasn't degraded — everything is compared against the commissioning baseline, and the trend matters more than any single reading.",
+ tests:[
+  {n:"IR Trending", p:"Same points, same instrument, same 1-minute duration as commissioning. Temperature-correct and plot against baseline. A steady downward trend matters more than one low number."},
+  {n:"Bus Joint Resistance Trending", p:"DLRO the same joints measured at acceptance. Rising resistance on a specific joint is the earliest reliable indicator of a loosening or corroding connection."},
+  {n:"Thermographic Survey (energized)", p:"Under load, at least annually. This is the highest-value maintenance test on an assembly — it finds developing connection problems with no outage."},
+  {n:"Mechanism Exercise", p:"Operate breakers, shutters, and interlocks through full travel. Gear that sits closed for years fails on operation, not on insulation."},
+  {n:"Cleaning & Re-torque", p:"Clean insulators and bus; verify torque or re-verify by DLRO. Document what was found loose."}
+ ],
+ watch:["Discoloration or heat damage at stabs and joints","Dust bridging on insulators, especially in cement/mining environments","Moisture staining, rust at the enclosure base","Heaters failed off — the leading cause of condensation damage","Rodent entry and nesting material"]
+},
+mvswgr:{ interval:"1–3 years; annually for critical service or after any fault operation.",
+ focus:"Trend insulation and contact condition, and prove the gear still operates. Most MV switchgear failures trace to lack of operation and moisture ingress, not to insulation aging.",
+ tests:[
+  {n:"IR Trending", p:"Compare against baseline at the same test voltage and duration, temperature-corrected."},
+  {n:"Bus Joint Resistance", p:"DLRO the same joints as commissioning; investigate rising trends."},
+  {n:"Partial Discharge Survey", p:"Online or offline PD is the most useful MV maintenance tool — it finds tracking, contamination, and void formation years before failure."},
+  {n:"Thermographic Survey", p:"Through IR windows where fitted; under meaningful load."},
+  {n:"Racking & Interlock Exercise", p:"Rack every breaker through all positions and operate every interlock. Document anything stiff or binding."},
+  {n:"Cable Termination Inspection", p:"Check stress cones and boots for tracking — MV terminations inside switchgear are a common failure point."}
+ ],
+ watch:["White/gray powder deposits (tracking) on insulators or boots","Corona odor (ozone) when opening the gear","Heater circuits failed","Shutters or racking mechanisms binding","Any evidence of prior arcing in a compartment"]
+},
+bus:{ interval:"3–5 years; more frequently on outdoor runs or where joints see thermal cycling.",
+ focus:"Busway lives or dies on joint integrity and moisture. Maintenance is mostly about joints and water.",
+ tests:[
+  {n:"Joint Resistance Trending", p:"DLRO accessible joints against baseline. Rising values on a specific joint precede a hot-joint failure."},
+  {n:"IR Trending", p:"Phase-to-phase and phase-to-ground, corrected and compared to baseline. Long runs read lower — compare like to like."},
+  {n:"Thermographic Survey", p:"Scan joints under load. On enclosed busway, scan through IR windows or at joint covers."},
+  {n:"Moisture Inspection", p:"Check for water entry at outdoor sections, roof penetrations, and low points. Verify drains and weep holes are clear."},
+  {n:"Support & Hanger Check", p:"Verify supports and expansion fittings — thermal cycling walks hardware loose over years."}
+ ],
+ watch:["Water staining or corrosion at joints and elbows","Discolored or heat-damaged joint covers","Sagging between hangers","Joint bolts that no longer show the original torque marking"]
+},
+panel:{ interval:"1–3 years; annually for critical panels or where the environment is harsh.",
+ focus:"Panelboard maintenance is mostly thermal and mechanical. Insulation rarely fails; connections and breakers do.",
+ tests:[
+  {n:"Thermographic Survey", p:"Under load, scan main lugs, bus stabs, and every branch termination. This is the primary maintenance test for panelboards."},
+  {n:"Connection Re-torque", p:"Verify torque on main and branch terminations per manufacturer values. Aluminum conductors especially require periodic verification."},
+  {n:"Breaker Exercise", p:"Operate each branch breaker on/off several times. Breakers that never operate weld or seize."},
+  {n:"IR Spot Check", p:"Bus phase-to-ground with branch devices open, compared to baseline."},
+  {n:"Directory Verification", p:"Re-verify and correct the panel schedule against actual circuits."}
+ ],
+ watch:["Discolored breaker faces or bus stabs","Double-lugged or improperly terminated conductors added since commissioning","Missing filler plates","Breakers that feel gritty or won't reset cleanly","Directory that no longer matches reality"]
+},
+netprot:{ interval:"1–2 years; utility practice often governs. After any operation on fault.",
+ focus:"Prove the protector still opens on reverse power and closes only in phase. Mechanism condition drives the interval — these units operate frequently.",
+ tests:[
+  {n:"Reverse Power Trip Verification", p:"Re-verify the trip setting and operation. This is the function the device exists for and it must be proven at every maintenance interval."},
+  {n:"Network Relay Calibration", p:"Verify master and phasing relay characteristics against settings; recalibrate as needed."},
+  {n:"Contact Resistance & Erosion", p:"DLRO each pole and inspect contacts. Network protectors cycle often — contact wear is the usual limiting factor."},
+  {n:"Mechanism Overhaul", p:"Clean, lubricate, and exercise per OEM operation count."},
+  {n:"Enclosure & Vault Condition", p:"Verify gasket integrity, check for water, and confirm vault drainage is working."}
+ ],
+ watch:["Water intrusion in submersible units — the dominant failure mode","Contact erosion beyond OEM limit","Operations counter far above the maintenance interval","Corroded or waterlogged control wiring"]
+},
+mccb:{ interval:"1–3 years for critical breakers; NEMA AB 4 guidance for general application.",
+ focus:"Molded-case breakers are sealed units — you're verifying they still trip and still make good contact, and exercising them so they don't seize.",
+ tests:[
+  {n:"Exercise / Manual Operation", p:"Operate on-off-trip several times. A breaker that has sat closed for a decade may not trip mechanically at all — this simple step finds that."},
+  {n:"Primary Injection — Long-Time & Instantaneous", p:"Verify trip times against the curve. Compare against acceptance values; slowing trip times indicate mechanism or bimetal degradation."},
+  {n:"Contact Resistance", p:"DLRO each pole; compare to baseline and between poles."},
+  {n:"IR Check", p:"Pole-to-pole, pole-to-ground, and across open contacts."},
+  {n:"Thermographic Survey", p:"Under load at line and load terminations."}
+ ],
+ watch:["Breaker that won't trip on the push-to-test or mechanical trip","Discoloration at terminals","Cracked case or evidence of arcing","Trip unit settings changed since the last visit without documentation","Breakers well past OEM recommended replacement age"]
+},
+lvpcb:{ interval:"1–3 years, or by operation count per OEM — whichever comes first.",
+ focus:"Drawout power breakers are maintainable machines. Maintenance is mechanism condition, contact wear, and verifying the trip unit still protects.",
+ tests:[
+  {n:"Contact Wear & Wipe Inspection", p:"Measure contact erosion and wipe per OEM. This determines remaining life more reliably than calendar age."},
+  {n:"Mechanism Clean & Lubricate", p:"Old hardened grease is the number one cause of slow or failed operation. Clean and relubricate per OEM — do not just add grease."},
+  {n:"Primary Injection", p:"Re-verify all trip elements against the coordination study. Document as-found and as-left."},
+  {n:"Contact Resistance Trending", p:"DLRO each pole against baseline; rising values indicate contact erosion or a poor stab connection."},
+  {n:"Charge/Close/Trip Verification", p:"Verify at minimum control voltage; check anti-pump and trip-free operation."},
+  {n:"Racking & Cell Interface", p:"Exercise racking; inspect primary and secondary disconnects for wear and alignment."}
+ ],
+ watch:["Operations counter beyond OEM maintenance point","Arc chute erosion or cracking","Contact erosion indicators at or past limit","Sluggish charging motor or slow close","Discolored or worn primary disconnect fingers"]
+},
+mvvac:{ interval:"1–3 years or per OEM operation count; after any fault interruption.",
+ focus:"Two questions: does the vacuum still hold, and does the mechanism still operate to spec. Everything else is secondary.",
+ tests:[
+  {n:"Vacuum Integrity Test", p:"Withstand across each open interrupter at OEM voltage. A bottle that has lost vacuum gives no warning otherwise — this is the essential maintenance test."},
+  {n:"Contact Erosion Measurement", p:"Check the erosion indicator per OEM. This and the operations counter drive replacement timing."},
+  {n:"Timing & Travel Analysis", p:"Compare open/close times and pole synchronization to baseline. Drift indicates mechanism wear or lubrication problems."},
+  {n:"Contact Resistance", p:"DLRO each pole; trend against commissioning values."},
+  {n:"Mechanism Service", p:"Clean, lubricate, and exercise per OEM. Verify minimum trip/close voltage."},
+  {n:"SF6 Gas Testing (SF6 units)", p:"Moisture, purity, and decomposition products. Required after fault operations."}
+ ],
+ watch:["Operations count near or past OEM limit","Contact erosion indicator at limit","Timing drift from baseline","SF6 low-pressure alarms or density trending down","Any interruption of a through-fault since the last service"]
+},
+mvair:{ interval:"1–2 years — legacy gear needs more attention, not less.",
+ focus:"Legacy air-magnetic and oil breakers fail mechanically. Operating and lubricating them matters more than any electrical measurement.",
+ tests:[
+  {n:"Mechanism Overhaul", p:"Full clean and relubrication. Hardened grease in a decades-old mechanism is the single most common cause of failure to operate."},
+  {n:"Contact Inspection & Resistance", p:"Inspect main and arcing contacts for erosion and alignment; DLRO each pole against baseline."},
+  {n:"Arc Chute Inspection", p:"Check for cracks, erosion, and moisture absorption. Damp arc chutes fail on interruption."},
+  {n:"Timing Analysis", p:"Compare against baseline; legacy mechanisms drift measurably with lubrication condition."},
+  {n:"Oil Testing (oil breakers)", p:"Dielectric, moisture, and particulates. Sample after any fault interruption regardless of interval."},
+  {n:"Insulation & Overpotential", p:"IR trending and across-open-contact withstand per OEM."}
+ ],
+ watch:["Breaker that operates slowly or unevenly","Carbon tracking in arc chutes","Oil level low or discolored","Interrupting rating below the current available fault current — system growth outruns legacy gear","Obsolete units with no parts availability"]
+},
+recloser:{ interval:"1–3 years, but operation-count driven — reclosers work hard.",
+ focus:"Reclosers accumulate operations fast. Maintenance is about contact life, control battery health, and re-proving the reclose sequence.",
+ tests:[
+  {n:"Operation Count Review", p:"Record the counter and compare against OEM maintenance points. Count, not calendar, governs."},
+  {n:"Vacuum Integrity", p:"Withstand across open contacts to prove vacuum on vacuum reclosers."},
+  {n:"Reclose Sequence Verification", p:"Re-prove the full programmed sequence — shots, dead times, lockout. Settings drift through firmware updates and field changes."},
+  {n:"Control Battery & Power Supply", p:"Test and load-check the control battery. A dead control battery makes the recloser a very expensive fixed switch."},
+  {n:"Contact Resistance", p:"DLRO against baseline."},
+  {n:"Bushing & Tank Inspection", p:"Check for contamination, tracking, and leaks."}
+ ],
+ watch:["Operation count past OEM service point","Control battery age beyond service life","Reclosing settings not matching current coordination study","Corrosion at the control cable connector","Evidence of animal contact on bushings"]
+},
+fuse:{ interval:"With the equipment it protects; inspect at every equipment maintenance visit.",
+ focus:"Fuses are not maintained — they're verified. Checks focus on correct application, holder condition, and spare availability.",
+ tests:[
+  {n:"Fuse & Holder Resistance", p:"DLRO through fuses and clips; compare across the set. Weak clips and partially damaged elements show up here."},
+  {n:"Clip Tension Check", p:"Verify holder tension per OEM. Weak clips run hot and cause nuisance operation."},
+  {n:"Application Verification", p:"Re-confirm class, rating, and interrupting rating against the current coordination study — systems change and fuses get swapped for whatever was on the truck."},
+  {n:"Thermographic Survey", p:"Under load, scan fuses and holders. A hot fuse is either the wrong size or has a bad clip."},
+  {n:"Spares Verification", p:"Confirm correct spare fuses are stocked on site."}
+ ],
+ watch:["Mismatched fuses within one set","Discolored or springy clips","Fuses replaced with a different class than specified","Blown-fuse indicators not functioning","No correct spares on site"]
+},
+drytx:{ interval:"1–3 years; annually in dusty or high-load service.",
+ focus:"Dry-type transformers fail from heat and contamination. Maintenance is cleaning, connection integrity, and IR trending.",
+ tests:[
+  {n:"IR Trending + PI", p:"Winding-to-winding and to ground, temperature-corrected, compared to baseline. A consistent downward trend means contamination or moisture ingress."},
+  {n:"Cleaning", p:"Vacuum and clean coils and cooling ducts. Dust blocking ventilation raises operating temperature and shortens insulation life measurably."},
+  {n:"Connection Re-torque / DLRO", p:"Verify terminations. Dry-type units thermal-cycle their connections loose more than liquid units do."},
+  {n:"TTR Spot Check", p:"Verify ratio at the connected tap; full-tap testing where the unit has been re-tapped."},
+  {n:"Thermographic Survey", p:"Under load, scan terminations and coil surfaces; compare phase to phase."},
+  {n:"Temperature Control Verification", p:"Test fans, thermostats, and alarms on forced-air units."}
+ ],
+ watch:["Dust accumulation in cooling ducts","Discoloration or cracking of coil surfaces","Cracked cast-coil sections","Fans not starting on temperature","Load creeping above nameplate over the years"]
+},
+liqtx:{ interval:"Fluid sampling annually; full electrical testing 3–5 years. DGA more frequently on critical or aging units.",
+ focus:"Fluid analysis is the core of liquid transformer maintenance — it detects developing faults years before electrical tests will. Everything else supports it.",
+ tests:[
+  {n:"Dissolved Gas Analysis (DGA)", p:"The single most valuable maintenance test. Trend gas ratios over time — the rate of change matters more than absolute values. Sample before disturbing the unit."},
+  {n:"Fluid Quality Testing", p:"Dielectric breakdown, moisture, acidity, IFT, color, power factor. Moisture in particular drives insulation aging."},
+  {n:"Power Factor Trending", p:"Windings (CH/CL/CHL) and bushings (C1/C2). Temperature-correct and trend — bushing PF trending catches the failures that take transformers out violently."},
+  {n:"IR Trending", p:"Corrected and compared to baseline."},
+  {n:"Winding Resistance", p:"Especially on LTC units, where it trends tap changer contact condition."},
+  {n:"Cooling System Verification", p:"Test fans, pumps, gauges, and alarm contacts; verify radiator valves are open."}
+ ],
+ watch:["Rising combustible gas levels or a changing gas ratio pattern","Rising moisture content","Bushing power factor trending upward — treat as urgent","Oil leaks, especially at bushing gaskets","Pressure relief device operation history","Max-drag temperature pointers well above normal"]
+},
+itx:{ interval:"With the equipment they serve, typically 3–5 years.",
+ focus:"Instrument transformers rarely degrade, but their wiring and grounding do. Maintenance is mostly verification that the secondary circuits are still correct and intact.",
+ tests:[
+  {n:"Secondary Circuit Verification", p:"Verify shorting blocks, test switches, and single-point grounding remain correct. Field modifications routinely break these."},
+  {n:"IR Check", p:"Windings to ground; compare to baseline."},
+  {n:"Ratio Spot Check", p:"Verify the connected tap is still the tap the relay settings assume."},
+  {n:"In-Service Phasor Verification", p:"On load, confirm relay-measured magnitudes and angles are sensible. This catches wiring changes made since commissioning."},
+  {n:"Burden Check", p:"Where devices have been added to the secondary circuit, re-verify burden is within the CT rating."}
+ ],
+ watch:["Additional devices added to a CT secondary since commissioning","Multiple grounds on one secondary circuit","Shorting screws left in after previous testing","Corroded terminal blocks in outdoor cabinets","Relay settings referencing a tap that was later changed"]
+},
+regulator:{ interval:"1–3 years; oil sampling annually. Operation-count driven for the tap changer.",
+ focus:"The tap changer is the wear item. Maintenance centers on contact condition, oil quality, and verifying the control still regulates correctly.",
+ tests:[
+  {n:"Operations Counter & Tap Changer Service", p:"Record the count; service the tap changer per OEM interval. Contact wear is the limiting factor on regulator life."},
+  {n:"Insulating Fluid Analysis", p:"Dielectric, moisture, and DGA — interpret with tap-changer arcing duty in mind. Carbon from normal switching is expected."},
+  {n:"Winding Resistance Through Tap Range", p:"Step changes across a tap transition indicate contact problems before they cause failure."},
+  {n:"Control Functional Verification", p:"Re-verify set voltage, bandwidth, time delay, and line drop compensation against the current system design."},
+  {n:"Full Range Operation", p:"Run through the complete raise/lower range in both directions, verifying every position and the reversing switch."},
+  {n:"Position Indicator & Drag Hands", p:"Record and reset; extreme positions indicate a system voltage problem upstream."}
+ ],
+ watch:["Drag hands pinned at maximum raise or lower","Rising DGA beyond normal switching signature","Tap changer hunting (excessive operations)","Control settings not matching current system conditions","Oil level low or leaking at the tap changer compartment"]
+},
+lvcable:{ interval:"3–5 years, or on condition. Often tested only when problems appear.",
+ focus:"LV cable maintenance is largely inspection and thermography. Full electrical testing is usually reserved for suspect circuits.",
+ tests:[
+  {n:"Thermographic Survey", p:"Scan terminations under load — this finds nearly all real LV cable problems, which are termination problems."},
+  {n:"IR Spot Check", p:"On suspect circuits, conductor-to-ground compared against baseline. Disconnect electronics first."},
+  {n:"Termination Inspection & Re-torque", p:"Check for discoloration, corrosion, and loose lugs, particularly on aluminum."},
+  {n:"Physical Inspection", p:"Check accessible runs for damage, abrasion at entries, and support condition."}
+ ],
+ watch:["Discolored or corroded terminations","Cable damage where it enters enclosures","Moisture in pull boxes and handholes","Loads added to circuits since installation","Aluminum terminations that have never been re-torqued"]
+},
+mvcable:{ interval:"3–5 years for diagnostic testing; more frequently on aged or critical circuits.",
+ focus:"MV cable maintenance is about detecting insulation degradation before failure. Diagnostic testing (tan delta, PD) tells you far more than pass/fail withstand.",
+ tests:[
+  {n:"Tan Delta / Dissipation Factor", p:"The core maintenance diagnostic. Trend loss and tip-up against baseline — rising values indicate water treeing and general aging."},
+  {n:"Partial Discharge Testing", p:"Locates specific defects at splices and terminations. Best combined with tan delta for a full picture."},
+  {n:"VLF Withstand", p:"At maintenance levels, which are lower than acceptance levels. Confirms the circuit will hold, but is pass/fail — it doesn't tell you how much life remains."},
+  {n:"Shield Continuity & Grounding", p:"Re-verify shield resistance and that the grounding scheme hasn't been altered."},
+  {n:"Termination & Splice Inspection", p:"Visually inspect all accessible terminations for tracking and contamination."}
+ ],
+ watch:["Rising tan delta or increasing tip-up between tests","Growing PD activity at a specific location","Tracking on terminations","Water in manholes and duct banks","Circuits that have seen repeated faults"]
+},
+airsw:{ interval:"1–3 years; more often where switches are operated regularly or exposed outdoors.",
+ focus:"Switches fail on mechanism and contact condition. Operating them is the most valuable thing you do.",
+ tests:[
+  {n:"Operation & Lubrication", p:"Operate through full travel several times; clean and lubricate per OEM. Seized switches are the common finding."},
+  {n:"Contact Resistance", p:"DLRO each pole and through fuse holders; trend against baseline."},
+  {n:"Blade Alignment & Wipe", p:"Verify all three blades seat fully and evenly. Misaligned blades run hot and can fail to interrupt."},
+  {n:"IR Trending", p:"Pole-to-pole, pole-to-ground, and across the open switch."},
+  {n:"Thermographic Survey", p:"Under load — switch blades and fuse clips are classic hot spots."},
+  {n:"Interlock Verification", p:"Re-prove all mechanical and key interlocks operate correctly."}
+ ],
+ watch:["Blades not seating fully or evenly","Discoloration at blade contacts and clips","Stiff or binding operation","Interlocks defeated or bypassed by site personnel","Corrosion on outdoor switch hardware"]
+},
+outdoor:{ interval:"1–3 years visual/thermographic; longer for full electrical testing.",
+ focus:"Outdoor conductors and bus degrade from environment, not electrical stress. Inspection and thermography carry the maintenance program.",
+ tests:[
+  {n:"Thermographic Survey", p:"Under load, on connections, splices, and disconnect blades. The primary maintenance test for outdoor bus."},
+  {n:"Insulator Inspection", p:"Check for contamination, chips, cracks, and tracking. Wash insulators where contamination is heavy."},
+  {n:"Connection Resistance", p:"DLRO accessible bolted and compression connections; compare and trend."},
+  {n:"Hardware & Corrosion Check", p:"Verify torque and inspect for corrosion, especially at dissimilar-metal joints."},
+  {n:"Grounding Verification", p:"Check structure, fence, and equipment ground connections for corrosion and continuity."},
+  {n:"Corona Inspection", p:"Night-vision corona survey on HV where specified."}
+ ],
+ watch:["Contamination buildup on insulators in coastal or industrial areas","Corrosion at aluminum-to-copper joints","Strand damage or annealing on conductors","Vegetation encroaching on clearances","Bird and animal activity on structures"]
+},
+mcc:{ interval:"1–3 years; annually in process-critical or harsh service.",
+ focus:"MCC maintenance is thermal, mechanical, and about verifying overload protection still matches the motor.",
+ tests:[
+  {n:"Thermographic Survey", p:"Under load, scan bus, stabs, and starter components through IR windows or with covers removed under an energized work permit."},
+  {n:"Stab & Bus Connection Check", p:"Inspect and DLRO bucket stabs — the classic MCC hot spot. Verify stab tension per OEM."},
+  {n:"Contactor Inspection", p:"Check contacts for erosion and pitting; verify arc chute condition. Replace contacts per OEM wear limits."},
+  {n:"Overload Verification", p:"Re-verify overload setting against the actual motor nameplate — motors get replaced with different sizes and the overload doesn't always follow."},
+  {n:"IR Trending", p:"Bus and each starter pole to ground."},
+  {n:"Control Circuit Function", p:"Re-prove interlocks, permissives, and safety circuits."}
+ ],
+ watch:["Discolored or eroded bucket stabs","Overload settings that no longer match the installed motor","Contactor contacts worn past OEM limits","Buckets that don't rack smoothly","Control modifications made in the field without drawing updates"]
+},
+acmotor:{ interval:"1–3 years for testing; continuous condition monitoring where critical.",
+ focus:"Motor maintenance is about detecting winding and bearing degradation early. IR and PI trending plus vibration analysis carry the program.",
+ tests:[
+  {n:"IR + PI Trending", p:"Corrected to 40°C and compared to baseline. Apply IEEE 43 guidance — on high-IR windings PI may not be meaningful."},
+  {n:"Winding Resistance Balance", p:"Compare phases; growing imbalance indicates connection or winding problems."},
+  {n:"Vibration Analysis", p:"The highest-value predictive test for motors — catches bearing wear, misalignment, imbalance, and looseness."},
+  {n:"Surge Comparison / PD (large machines)", p:"Detects turn-to-turn weakness that IR cannot see. Worth it on critical or high-value machines."},
+  {n:"Bearing Lubrication & Temperature", p:"Lubricate per OEM schedule — over-greasing damages as many bearings as under-greasing. Trend bearing temperatures."},
+  {n:"Cleaning & Ventilation", p:"Clean cooling passages; blocked ventilation is a leading cause of premature winding failure."}
+ ],
+ watch:["Declining IR trend after temperature correction","Rising vibration amplitudes or new frequency peaks","Bearing temperature trending upward","Contamination in cooling passages","Increasing current imbalance between phases","Repeated overload trips"]
+},
+dcmach:{ interval:"6 months to 2 years — brush and commutator wear drives the interval.",
+ focus:"Commutator and brush condition dominate DC machine maintenance. Everything else is secondary.",
+ tests:[
+  {n:"Brush & Commutator Inspection", p:"Check brush length, spring pressure, seating, and film pattern. Uneven film across brush tracks is the machine telling you something is wrong."},
+  {n:"Commutator Surface Condition", p:"Look for grooving, threading, bar burning, and high mica. Resurface or undercut per OEM when indicated."},
+  {n:"Carbon Dust Removal", p:"Clean thoroughly — carbon dust is conductive and bridges insulation over time."},
+  {n:"IR + PI Trending", p:"Armature and each field circuit separately, corrected and trended."},
+  {n:"Bar-to-Bar Resistance", p:"On suspect machines, finds open or shorted armature coils and bad commutator riser joints."},
+  {n:"Brush Neutral Verification", p:"Re-check after any brush holder disturbance."}
+ ],
+ watch:["Excessive brush sparking","Uneven or patchy commutator film","Brushes worn near the wear line","Carbon dust accumulation in the machine","Grooved or threaded commutator surface","Field circuit IR declining"]
+},
+asd:{ interval:"1–2 years; annually where cooling is marginal or the environment is dusty.",
+ focus:"Drives are electronics — thermal management and capacitor aging dominate. Maintenance is mostly cleaning, cooling, and parameter verification.",
+ tests:[
+  {n:"Cooling System Service", p:"Clean heatsinks, replace filters, and verify every fan runs. Thermal stress is the primary drive killer."},
+  {n:"DC Bus Capacitor Assessment", p:"Check capacitor age against OEM service life and inspect for bulging or venting. Electrolytic capacitors are a scheduled replacement item, not a run-to-failure part."},
+  {n:"Parameter Backup & Verification", p:"Export and archive the parameter set; verify settings against the motor and application. An unbackedup drive is a long outage when it fails."},
+  {n:"Connection Torque Check", p:"Input, output, and DC bus terminations — drives vibrate connections loose."},
+  {n:"Motor & Cable IR (drive disconnected)", p:"Test the motor circuit with the drive isolated. Never megger through a drive."},
+  {n:"Output Current Balance Under Load", p:"Verify balanced output currents and check for unusual harmonics or audible noise."}
+ ],
+ watch:["Dust-clogged heatsinks or failed cooling fans","Capacitors past OEM service life","Bulging or leaking capacitors","Fault history showing repeated overcurrent or overtemperature trips","No archived parameter backup","Ambient temperature above drive rating"]
+},
+firepump:{ interval:"NFPA 25 governs — weekly/monthly churn tests and annual flow tests are code requirements.",
+ focus:"Fire pump maintenance is code-driven, not condition-driven. NETA testing supplements the NFPA 25 regime; it does not replace it.",
+ tests:[
+  {n:"Automatic Start Verification", p:"Bleed the sensing line and confirm automatic start, minimum run timer, and annunciation — at the NFPA 25 required frequency."},
+  {n:"Annual Flow Test Support", p:"Verify controller and electrical performance during the required annual flow test."},
+  {n:"Transfer Switch Function", p:"On controllers with transfer switches, simulate source loss with the pump running."},
+  {n:"Alarm Verification", p:"Re-prove every required alarm to the fire alarm panel."},
+  {n:"Contactor & Connection Inspection", p:"Inspect contacts and DLRO the motor circuit."},
+  {n:"Documentation Review", p:"Verify the required test records are being kept — the AHJ will ask."}
+ ],
+ watch:["Sensing line valved off or plugged","Required periodic tests not being performed or recorded","Overcurrent protection replaced with conventional motor protection","Alarms not reaching the fire alarm panel","Controller in manual or disabled after previous testing"]
+},
+relay:{ interval:"Electromechanical: 1–2 years. Microprocessor: 3–5 years, with self-test monitoring between.",
+ focus:"Electromechanical relays drift and need calibration. Microprocessor relays don't drift, so their maintenance is about settings integrity, wiring, and proving the trip path still works.",
+ tests:[
+  {n:"Settings Verification", p:"Compare as-found settings against the current issued setting sheet. Discrepancies get documented and escalated, never silently corrected."},
+  {n:"Pickup & Timing (EM relays)", p:"Recalibrate electromechanical relays — they drift with age, dust, and bearing wear. Microprocessor relays need spot verification, not recalibration."},
+  {n:"Functional Trip Test", p:"Prove the output contact still drives the intended lockout or breaker trip. Wiring changes between visits are common."},
+  {n:"In-Service Phasor Check", p:"On load, verify measured magnitudes and angles. Catches CT/VT circuit changes made since the last visit."},
+  {n:"Self-Test & Event Review", p:"On microprocessor relays, review self-test status, event records, and fault history — the relay has been telling you about problems since your last visit."},
+  {n:"Firmware & Settings Archive", p:"Verify settings files are archived and firmware is at a supported revision."}
+ ],
+ watch:["As-found settings differing from the issued sheet","Relay self-test alarms or failed status","Unexplained events or targets in the event log","Dust or moisture inside electromechanical relay cases","Firmware versions with known issues","Test switches left in the test position"]
+},
+gfp:{ interval:"Annually is common practice for critical systems; NEC requires performance testing at installation.",
+ focus:"Ground fault systems are silent until they're needed. Maintenance is proving the whole path still works, including the neutral arrangement.",
+ tests:[
+  {n:"Primary Injection Verification", p:"Re-prove pickup and time with correct return-path routing. Return current through the sensor window cancels the signal."},
+  {n:"Neutral Isolation Check", p:"Re-verify no downstream neutral-ground bonds have been added. New equipment installed since commissioning is the usual culprit."},
+  {n:"Sensor & Wiring Inspection", p:"Verify sensor placement and polarity haven't changed and that all required conductors still pass through the window."},
+  {n:"Zone Interlock Verification", p:"Where ZSI is used, re-prove restraint and fast-trip behavior."},
+  {n:"Monitor Panel Function", p:"Test the panel test function, indication, and reset."},
+  {n:"Documentation", p:"Keep the written performance test record — the code requires it and inspectors ask."}
+ ],
+ watch:["Downstream neutral-ground bonds added by later work","Equipment added downstream without re-verifying the GF scheme","Settings changed to stop nuisance trips instead of finding the cause","Missing performance test documentation","Ground fault relay in test or disabled position"]
+},
+meter:{ interval:"3–5 years; revenue metering may have utility-mandated intervals.",
+ focus:"Meters drift very little. Maintenance is verification of scaling, wiring, and that the data is actually being used correctly.",
+ tests:[
+  {n:"Programmed Ratio Verification", p:"Confirm the programmed CT/VT ratios still match the physically installed instrument transformers. This is the error that quietly compounds."},
+  {n:"Accuracy Verification", p:"Inject known quantities or compare to a reference instrument on load."},
+  {n:"In-Service Reading Check", p:"Compare meter readings against a portable reference under load; sanity-check the phasor diagram."},
+  {n:"Communications Verification", p:"Verify protocol points, time sync, and data logging are working."},
+  {n:"Connection Inspection", p:"Check test switch operation and terminal condition."}
+ ],
+ watch:["Programmed ratio not matching the installed CT","Meters reading obviously implausible values that nobody has questioned","Lost time sync causing useless trend data","Communications dropped since the last visit","Test switches left open"]
+},
+battery:{ interval:"Monthly visual/float checks, quarterly detailed inspection, annual ohmic testing, capacity testing per IEEE.",
+ focus:"Batteries degrade continuously and predictably. This is the most interval-driven maintenance in the app — and the one most often skipped until an outage exposes it.",
+ tests:[
+  {n:"Float Voltage Survey", p:"Individual cell voltages against OEM specification; identify outliers early."},
+  {n:"Ohmic Testing (impedance/conductance)", p:"Annual minimum. Trend each unit against its own installation baseline using the same instrument and probe points every time."},
+  {n:"Connection Resistance", p:"Re-verify inter-cell connections; retorque per OEM. Loose connections cause heating and voltage drop under load."},
+  {n:"Capacity / Discharge Test", p:"Per IEEE intervals — and this is the only test that proves the string will carry the load. Ohmic testing supplements it, never replaces it."},
+  {n:"Charger Verification", p:"Float and equalize voltages, current limit, and alarm functions."},
+  {n:"Visual & Environmental", p:"Check for case bulging, leaks, corrosion, electrolyte levels (VLA), and verify ventilation and room temperature. Battery life halves with sustained elevated temperature."}
+ ],
+ watch:["Ohmic values trending away from baseline on specific units","Cells that won't hold float voltage","Case bulging or terminal corrosion","Room temperature consistently above 25°C","Capacity below 80% of rated — replacement threshold in common practice","Battery age approaching published service life"]
+},
+ups:{ interval:"Semi-annual to annual electrical service; battery maintenance on the battery schedule.",
+ focus:"UPS maintenance is thermal management, capacitor and battery aging, and periodically proving the transfer actually works.",
+ tests:[
+  {n:"Battery Runtime Verification", p:"Discharge test against actual load. The most important UPS maintenance activity — everything else can pass while the batteries can't carry the load."},
+  {n:"Capacitor Assessment", p:"DC bus and AC filter capacitors are life-limited consumables. Check age against OEM service life; inspect for bulging or venting."},
+  {n:"Cooling System Service", p:"Clean and verify all fans and filters. Verify room cooling and ambient temperature."},
+  {n:"Transfer Function Test", p:"Prove transfer to battery, to static bypass, and back — under load where the site permits."},
+  {n:"Maintenance Bypass Verification", p:"Walk the documented sequence and confirm it still works and is still correctly labeled."},
+  {n:"Alarm & Monitoring Check", p:"Verify local and remote alarms including on-battery and low-battery."}
+ ],
+ watch:["Batteries past service life or failing ohmic trending","Capacitors past OEM replacement interval","Failed cooling fans or clogged filters","Elevated room temperature","Alarm history showing repeated transfers to bypass","Maintenance bypass procedure not posted or out of date"]
+},
+genset:{ interval:"Weekly no-load exercise, monthly under load, annual full load-bank test. NFPA 110 governs for emergency systems.",
+ focus:"Generators fail to start far more often than they fail to run. Maintenance concentrates on starting reliability: batteries, fuel, and controls.",
+ tests:[
+  {n:"Starting Battery Testing", p:"Load-test the starting battery and verify the charger. Dead starting batteries are the number one cause of failure to start."},
+  {n:"Fuel Quality & System", p:"Test and polish diesel fuel; check for microbial growth and water. Stored fuel degrades in as little as a year."},
+  {n:"Load Bank Test", p:"Annual test at rated load for the required duration. Lightly loaded diesels wet-stack — load bank testing burns that out and proves capacity."},
+  {n:"Protective Function Verification", p:"Re-prove generator protection and engine shutdowns — overspeed, low oil pressure, high coolant temperature."},
+  {n:"Block Heater & Charger Verification", p:"Confirm both are working. A cold engine that won't crank is an emergency system that failed."},
+  {n:"IR Trending", p:"Generator windings, with the AVR and electronics disconnected."}
+ ],
+ watch:["Starting battery age or failing load test","Fuel stored beyond service life or contaminated","Block heater or battery charger failed","Wet stacking — oily exhaust residue from light loading","Coolant and oil levels declining between visits","Test records not meeting NFPA 110 requirements"]
+},
+ats:{ interval:"Monthly transfer test for emergency systems per NFPA 110; annual detailed maintenance.",
+ focus:"Transfer switches sit still for years then must operate perfectly. Exercise and contact condition are the whole program.",
+ tests:[
+  {n:"Full Transfer Sequence Test", p:"Simulate source loss and verify the complete sequence: engine start, transfer, retransfer with delay, and cooldown. Under load where authorized."},
+  {n:"Contact Inspection & Resistance", p:"Inspect contacts per OEM and DLRO each pole in both source positions; trend against baseline."},
+  {n:"Mechanism Exercise & Lubrication", p:"Operate the mechanism and service per OEM. Transfer switches that never operate seize."},
+  {n:"Voltage/Frequency Sensing Verification", p:"Re-verify pickup and dropout thresholds and all time delays against settings."},
+  {n:"Bypass-Isolation Function", p:"Where fitted, exercise bypass to both sources and verify drawout isolation."},
+  {n:"Connection Torque Check", p:"Verify power terminations — transfer switches carry full load through relatively few connections."}
+ ],
+ watch:["Contacts showing erosion or discoloration","Transfer times lengthening compared to baseline","Time delay settings changed to mask a problem","ATS left in bypass or manual after previous service","Missing NFPA 110 transfer test records"]
+},
+arrester:{ interval:"3–5 years; inspect after any known surge event or nearby lightning activity.",
+ focus:"Arresters degrade silently and fail either open (no protection) or short (violently). Comparative testing between identical units is the practical detection method.",
+ tests:[
+  {n:"Comparative IR Testing", p:"Test identical arresters and compare — a unit deviating significantly from its siblings is degrading."},
+  {n:"Watts-Loss / Power Factor (MV/HV)", p:"Trend against baseline and against identical units. The most sensitive indicator of arrester degradation."},
+  {n:"Surge Counter Reading", p:"Record counter values and leakage current readings where monitors are fitted; trend the operation count."},
+  {n:"Ground Connection Verification", p:"Verify the ground lead is intact, short, and low-resistance. A disconnected arrester ground means no protection."},
+  {n:"Visual Inspection", p:"Check for cracks, tracking, discoloration, and evidence of prior operation."},
+  {n:"SPD Status Check (LV)", p:"Verify SPD status indicators — many SPDs fail quietly and the indicator is the only warning."}
+ ],
+ watch:["Status indicators showing failed on LV SPDs","Rising leakage current or watts-loss trend","High surge counter readings","Cracked or discolored housings","Ground leads damaged, corroded, or lengthened","Arresters that survived a nearby strike without being checked"]
+},
+cap:{ interval:"1–3 years; more frequently on harmonic filter banks.",
+ focus:"Capacitor maintenance is about detecting element failures before they cascade, and verifying the bank still does what it was installed to do.",
+ tests:[
+  {n:"Capacitance Measurement", p:"Measure each unit and phase; compare to nameplate and between phases. Capacitance drift indicates internal element failures."},
+  {n:"Blown Fuse Inspection", p:"Check individual unit fuses. A blown fuse means a failed unit and an unbalanced bank."},
+  {n:"Unbalance Protection Verification", p:"Re-prove the neutral unbalance or protection scheme operates at setting — this protects the bank from cascading failure."},
+  {n:"Visual Inspection", p:"Check for case bulging, leaks, and discoloration. A bulged case is a unit about to fail."},
+  {n:"Filter Tuning Verification", p:"On harmonic filter banks, re-verify tuning. Capacitance drift detunes the filter and can amplify the harmonic it was installed to absorb."},
+  {n:"Thermographic Survey", p:"Under load, check connections and individual units."}
+ ],
+ watch:["Bulging capacitor cases — treat as urgent","Blown unit fuses","Capacitance drifting from nameplate","Filter bank detuned from its design frequency","Unbalance protection disabled to stop nuisance alarms","Switching contactors or vacuum switches worn from daily cycling"]
+},
+grounding:{ interval:"3–5 years; annually in corrosive soils or after any excavation near the grid.",
+ focus:"Grounding degrades from corrosion, and nobody notices until a fault. Bonding continuity matters as much as electrode resistance.",
+ tests:[
+  {n:"Point-to-Point Continuity", p:"DLRO between the grid and equipment grounds. This finds broken bonds — the more common real-world problem."},
+  {n:"Fall-of-Potential", p:"Re-measure grid resistance and compare to the design value and previous tests. Use the flat-region method on grids."},
+  {n:"Connection Inspection", p:"Inspect accessible connections for corrosion; exothermic welds and compression connections degrade differently than bolted."},
+  {n:"Seasonal Context Recording", p:"Record soil condition, moisture, and whether ground is frozen. Comparing a frozen-ground reading to a summer reading tells you nothing."},
+  {n:"Fence & Structure Bonding", p:"Verify substation fence, gate, and structure bonds remain intact."}
+ ],
+ watch:["Rising resistance trend beyond seasonal variation","Corroded or broken bonding conductors","Excavation or construction near the grid since the last test","Missing or stolen copper — a real problem at unattended sites","Equipment added without a ground connection"]
+},
+thermosurvey:{ interval:"Annual minimum; semi-annual for critical systems. Some programs scan quarterly on the most critical assets.",
+ focus:"Thermography IS a maintenance program, not a single test. Its value is comparative — the same equipment, at similar load, over time.",
+ tests:[
+  {n:"Routine Comparative Survey", p:"Scan the established route under load. Compare against previous surveys as well as against similar components."},
+  {n:"Load Documentation", p:"Record load at each scan. Findings are not comparable between surveys at different loads — heating goes with the square of current."},
+  {n:"Severity Classification", p:"Classify each anomaly by ΔT and criticality; assign repair priority rather than reporting every warm spot as urgent."},
+  {n:"Post-Repair Verification", p:"Rescan repaired items at comparable load to confirm the anomaly cleared. An unverified repair is an assumption."},
+  {n:"Route & Baseline Maintenance", p:"Keep the scan route current as equipment is added; establish baselines for new equipment."}
+ ],
+ watch:["Anomalies that recur at the same location after repair — the fix isn't addressing the cause","Surveys performed at low load and reported as clear","Repeated deferral of the same finding","Equipment added to the system but never added to the scan route","No comparison to previous survey data"]
+},
+sysfunc:{ interval:"After any system modification, protection setting change, or major equipment replacement. Periodic re-verification for critical systems.",
+ focus:"Systems drift. Settings change, wiring gets modified, and nobody re-proves the whole scheme. Maintenance system testing catches what individual component testing cannot.",
+ tests:[
+  {n:"Sequence Re-verification", p:"Re-prove the documented sequence of operations after any change. The as-built drawings and the actual system diverge over time."},
+  {n:"Protection Scheme End-to-End", p:"Periodically re-prove each scheme from initiating condition to final trip, including interlocks and blocking."},
+  {n:"Source Transfer Testing", p:"Re-verify transfer schemes under realistic conditions, including all time delays."},
+  {n:"Alarm & SCADA Point Audit", p:"Verify every point still reflects actual system state. Points break silently and nobody notices until an event."},
+  {n:"Documentation Reconciliation", p:"Compare drawings, settings files, and the arc flash study against the actual installed system, and update what has drifted."}
+ ],
+ watch:["Modifications made without updating drawings or the coordination study","Protective settings changed without a corresponding study revision","Interlocks defeated during a previous outage and never restored","Arc flash labels that no longer reflect the system","SCADA points that have been in alarm or failed so long that operators ignore them"]
+}
+};
 
 /* ============================ APP ============================ */
 
@@ -953,20 +1871,30 @@ function nameplate(name, reflineHtml, artHtml){
 
 function renderHome(filter){
   const term=(filter||'').trim().toLowerCase();
-  const groups = MODE==='test'?GROUPS:TSGROUPS;
-  const data = MODE==='test'?EQ:TS;
+  const groups = MODE==='ts' ? TSGROUPS : GROUPS;   // acceptance & maintenance share the equipment groups
+  const data   = MODE==='ts' ? TS : EQ;              // list rows always come from EQ for equipment modes
   let html='', any=false;
   for(const g of groups){
     let rows='';
     for(const id of g.items){
       const e=data[id];
       if(term){
-        const hay = MODE==='test'
-          ? [e.name,e.sub,e.neta,...e.vm,...e.tests.map(t=>t.n+' '+t.p),e.notes||''].join(' ').toLowerCase()
-          : [e.name,e.sub,...e.items.map(t=>t.n+' '+t.why+' '+t.fix)].join(' ').toLowerCase();
-        if(!hay.includes(term)) continue;
+        let hay;
+        if(MODE==='ts'){
+          hay = [e.name,e.sub,...e.items.map(t=>t.n+' '+t.why+' '+t.fix)].join(' ');
+        } else if(MODE==='mts'){
+          const m = MTS[id] || {};
+          hay = [e.name,e.sub,m.interval||'',m.focus||'',
+                 ...(m.tests||[]).map(t=>t.n+' '+t.p), ...(m.watch||[])].join(' ');
+        } else {
+          hay = [e.name,e.sub,e.neta,...e.vm,...e.tests.map(t=>t.n+' '+t.p),e.notes||''].join(' ');
+        }
+        if(!hay.toLowerCase().includes(term)) continue;
       }
-      const tag = MODE==='test'?e.neta:(e.items.length+' pitfalls');
+      let tag;
+      if(MODE==='ts')       tag = e.items.length+' pitfalls';
+      else if(MODE==='mts') tag = (MTS[id] && MTS[id].tests ? MTS[id].tests.length+' tasks' : 'MTS');
+      else                  tag = e.neta;
       rows+=`<button class="row" data-id="${id}">
         <span class="name">${hl(e.name,term)}<small>${hl(e.sub,term)}</small></span>
         <span class="tag">${tag}</span>
@@ -991,6 +1919,41 @@ function showTsDetail(id){
   detail.classList.add('show');
   window.scrollTo(0,0);
   try{history.pushState({id:'ts-'+id},'', '#ts-'+id);}catch(_){/* sandboxed preview */}
+}
+
+// Maintenance view for a piece of equipment: interval guidance, MTS-focused tasks,
+// and the condition indicators a tech should be looking for on site.
+function showMtsDetail(id){
+  currentId = 'mts-'+id;
+  const e = EQ[id], m = MTS[id];
+  if(!m){ showDetail(id); return; }
+
+  const art = `<div class="np-art"><img src="images/${id}.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" onload="this.nextElementSibling.style.display='none'"><div class="np-svg">${ART[id]||''}</div></div>`;
+  let h = nameplate(e.name, `${esc(e.sub)} &nbsp;·&nbsp; <b>MAINTENANCE</b>`, art);
+
+  h += `<div class="interval"><span class="interval-label">Typical interval</span><p>${esc(m.interval)}</p></div>`;
+  h += `<div class="sec"><h3>What maintenance testing is for</h3><p class="notes">${esc(m.focus)}</p></div>`;
+  h += `<div class="sec"><h3>Maintenance Tasks</h3>${m.tests.map(t=>
+        `<div class="test"><h4>${esc(t.n)}</h4><p>${esc(t.p)}</p></div>`).join('')}</div>`;
+  h += `<div class="sec"><h3>Condition Indicators</h3><ul class="check" data-list="watch">${
+        m.watch.map((w,i)=>`<li data-idx="${i}"${isChecked('mts-'+id,'watch',i)?' class="done"':''}>${esc(w)}</li>`).join('')}</ul></div>`;
+  h += `<div class="sec"><h3>Acceptance reference</h3><div class="stub">Full inspection checklists and acceptance test procedures for this equipment are in the <b>Acceptance</b> tab. Maintenance intervals depend on criticality, environment, and condition — follow SATSU and NFPA 70B where they specify intervals.</div></div>`;
+  h += `<button class="reset-checks" data-eq="mts-${id}">Reset indicators for this equipment</button>`;
+
+  detailBody.innerHTML = h;
+  home.classList.add('hidden');
+  searchWrap.classList.add('hidden');
+  tabs.classList.add('hidden');
+  detail.style.display='block';
+  detail.classList.add('show');
+  window.scrollTo(0,0);
+  try{history.pushState({id:'mts-'+id},'', '#mts-'+id);}catch(_){/* sandboxed preview */}
+}
+
+// Each mode carries its own accent colour so it's obvious which tab you're in
+// once you've navigated into a detail page.
+function applyModeAccent(){
+  document.body.dataset.mode = MODE;
 }
 
 function showDetail(id){
@@ -1032,19 +1995,30 @@ function showHome(){
 
 home.addEventListener('click',ev=>{
   const b=ev.target.closest('.row');
-  if(b){ MODE==='test'?showDetail(b.dataset.id):showTsDetail(b.dataset.id); }
+  if(!b) return;
+  if(MODE==='ts')       showTsDetail(b.dataset.id);
+  else if(MODE==='mts') showMtsDetail(b.dataset.id);
+  else                  showDetail(b.dataset.id);
 });
 tabs.addEventListener('click',ev=>{
   const t=ev.target.closest('.tab'); if(!t||t.dataset.mode===MODE) return;
   MODE=t.dataset.mode;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.mode===MODE));
-  q.placeholder = MODE==='test'?'Search equipment, tests, procedures…':'Search instruments, symptoms, fixes…';
+  document.querySelectorAll('.tab').forEach(x=>{
+    const on = x.dataset.mode===MODE;
+    x.classList.toggle('active', on);
+    x.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  applyModeAccent();
+  q.placeholder = MODE==='ts' ? 'Search instruments, symptoms, fixes…'
+                : MODE==='mts' ? 'Search maintenance tasks, intervals, indicators…'
+                : 'Search equipment, tests, procedures…';
   renderHome(q.value);
 });
 document.getElementById('backBtn').addEventListener('click',()=>{try{history.back();}catch(_){ } setTimeout(()=>{if(detail.style.display==='block')showHome();},60);});
 window.addEventListener('popstate',ev=>{
   const sid=ev.state&&ev.state.id;
   if(sid&&sid.startsWith('ts-')&&TS[sid.slice(3)]) showTsDetail(sid.slice(3));
+  else if(sid&&sid.startsWith('mts-')&&EQ[sid.slice(4)]) showMtsDetail(sid.slice(4));
   else if(sid&&EQ[sid]) showDetail(sid);
   else showHome();
 });
@@ -1075,9 +2049,12 @@ detailBody.addEventListener('click',ev=>{
   }
   const rb=ev.target.closest('.reset-checks');
   if(rb){
+    const key = rb.dataset.eq;                       // 'lvswgr' or 'mts-lvswgr'
     if(!confirm('Clear all checks for this equipment?')) return;
-    const o=CHECKS.load(); delete o[rb.dataset.eq]; CHECKS.save(o);
-    showDetail(rb.dataset.eq);
+    const o=CHECKS.load(); delete o[key]; CHECKS.save(o);
+    // Re-render whichever view the button belongs to.
+    if(key.startsWith('mts-')) showMtsDetail(key.slice(4));
+    else showDetail(key);
   }
 });
 
@@ -1183,10 +2160,12 @@ document.getElementById('refsBtn').addEventListener('click',()=>{
 document.getElementById('closeRefs').addEventListener('click',()=>refsPanel.classList.add('hidden'));
 refsPanel.addEventListener('click',ev=>{ if(ev.target===refsPanel) refsPanel.classList.add('hidden'); });
 
+applyModeAccent();
 renderHome('');
 if(location.hash){
   const id=location.hash.slice(1);
   if(id.startsWith('ts-')&&TS[id.slice(3)]) showTsDetail(id.slice(3));
+  else if(id.startsWith('mts-')&&EQ[id.slice(4)]) showMtsDetail(id.slice(4));
   else if(EQ[id]) showDetail(id);
 }
 

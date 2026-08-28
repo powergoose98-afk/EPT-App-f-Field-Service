@@ -1,9 +1,13 @@
 # Test Bench — Field Testing Reference
 
-A mobile-first PWA reference for field service technicians: NETA-scope electrical
-equipment acceptance/maintenance test procedures, a troubleshooting-pitfalls library
-by test instrument, tappable inspection checklists, and a device-local SATSU content
-import. Offline-capable, installable to the home screen.
+A mobile-first PWA reference for field service technicians, in three modes:
+
+- **Acceptance** — commissioning test procedures for 36 equipment types (NETA ATS scope)
+- **Maintenance** — intervals, trending priorities, and condition indicators (NETA MTS scope)
+- **Troubleshoot** — common test-equipment pitfalls by instrument
+
+Plus tappable checklists, a standards reference library, and device-local SATSU
+content import. Offline-capable, installable to the home screen.
 
 ## Deploy to GitHub Pages
 1. Create a repo and upload the entire contents of this folder to the repo root
@@ -22,8 +26,9 @@ import. Offline-capable, installable to the home screen.
   gear icon → Import. Content is stored only on the device, never in this repo.
 
 ## Editing content
-All testing and troubleshooting content lives in the `EQ` and `TS` objects inside
-the `<script>` in index.html. Standards references are in the `REFS` array.
+Content lives in three objects inside the `<script>` in index.html: `EQ` (acceptance),
+`MTS` (maintenance), and `TS` (troubleshooting), all keyed by the same equipment IDs.
+Standards references are in the `REFS` array; illustrations are in `ART`.
 
 ## Important
 This is a reference aid. Acceptance values and table data must be verified against
