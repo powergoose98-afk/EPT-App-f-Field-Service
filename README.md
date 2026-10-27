@@ -33,5 +33,5 @@ Standards references are in the `REFS` array; illustrations are in `ART`.
 ## Important
 This is a reference aid. Acceptance values and table data must be verified against
 your licensed NETA ATS/MTS edition, the manufacturer's instruction book, and Eaton
-SATSU. NETA renumbered sections in ATS-2021; ATS-2025 supersedes it — treat the
-in-app reference numbers as approximate.
+SATSU. Section numbers and values were aligned to ANSI/NETA ATS-2025; entries flagged
+“Check against your manual” could not be confirmed from the copy used.

@@ -1,8 +1,9 @@
-const CACHE = 'test-bench-v12';
+const CACHE = 'test-bench-v13-glass-ats2025';
 const CORE = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/maskable-512.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  // Cache each file on its own so one missing icon can't abort the whole install.
+  e.waitUntil(caches.open(CACHE).then(c => Promise.allSettled(CORE.map(u => c.add(u)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
